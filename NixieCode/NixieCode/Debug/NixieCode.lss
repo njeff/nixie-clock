@@ -1,0 +1,3250 @@
+
+NixieCode.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000008  00800100  00001068  000010fc  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         00001068  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          000000db  00800108  00800108  00001104  2**0
+                  ALLOC
+  3 .stab         000006cc  00000000  00000000  00001104  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  4 .stabstr      00000097  00000000  00000000  000017d0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .comment      0000002f  00000000  00000000  00001867  2**0
+                  CONTENTS, READONLY
+  6 .debug_aranges 00000348  00000000  00000000  00001896  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_info   00003204  00000000  00000000  00001bde  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_abbrev 00000d67  00000000  00000000  00004de2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_line   00001248  00000000  00000000  00005b49  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_frame  00000960  00000000  00000000  00006d94  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_str    000008f5  00000000  00000000  000076f4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_loc    000022c1  00000000  00000000  00007fe9  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_ranges 00000300  00000000  00000000  0000a2aa  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+ */ 
+
+#include "i2c.h"
+#include "ds3231.h"
+
+int getTime(uint8_t in[]){
+       0:	0c 94 fd 00 	jmp	0x1fa	; 0x1fa <__ctors_end>
+       4:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+       8:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+	TWIStart();
+       c:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+	if (TWIGetStatus() != 0x08)
+      10:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      14:	0c 94 44 01 	jmp	0x288	; 0x288 <__vector_5>
+      18:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+		return -1;
+	TWIWrite((DSADDRESS<<1) | 0);
+      1c:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+	if (TWIGetStatus() != 0x18)
+      20:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      24:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      28:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+		return -1;
+	TWIWrite(SECONDS);
+      2c:	0c 94 07 02 	jmp	0x40e	; 0x40e <__vector_11>
+	if (TWIGetStatus() != 0x28)
+      30:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      34:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      38:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+		return -1;
+		
+	TWIStart(); //repeated start
+      3c:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+	if (TWIGetStatus() != 0x10)
+      40:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      44:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+		return -1;
+	TWIWrite((DSADDRESS<<1) | 1);
+      48:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      4c:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+	if (TWIGetStatus() != 0x18)
+      50:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      54:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+		return -1;
+	uint8_t seconds = TWIReadACK();
+      58:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+	if (TWIGetStatus() != 0x50)
+      5c:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      60:	0c 94 75 06 	jmp	0xcea	; 0xcea <__vector_24>
+		return -1;
+	uint8_t minutes = TWIReadACK();
+      64:	0c 94 1a 01 	jmp	0x234	; 0x234 <__bad_interrupt>
+      68:	63 07       	cpc	r22, r19
+	if (TWIGetStatus() != 0x50)
+      6a:	67 07       	cpc	r22, r23
+      6c:	67 07       	cpc	r22, r23
+      6e:	67 07       	cpc	r22, r23
+      70:	67 07       	cpc	r22, r23
+		return -1;
+	uint8_t hours = TWIReadNACK();
+      72:	67 07       	cpc	r22, r23
+      74:	67 07       	cpc	r22, r23
+      76:	67 07       	cpc	r22, r23
+	if (TWIGetStatus() != 0x58)
+      78:	92 06       	cpc	r9, r18
+      7a:	67 07       	cpc	r22, r23
+      7c:	67 07       	cpc	r22, r23
+      7e:	67 07       	cpc	r22, r23
+		return -1;
+	TWIStop();
+      80:	67 07       	cpc	r22, r23
+      82:	67 07       	cpc	r22, r23
+	
+	in[0] = hours >> 4;
+      84:	67 07       	cpc	r22, r23
+      86:	67 07       	cpc	r22, r23
+      88:	92 06       	cpc	r9, r18
+      8a:	67 07       	cpc	r22, r23
+	in[1] = hours & 0x0F;
+      8c:	67 07       	cpc	r22, r23
+      8e:	67 07       	cpc	r22, r23
+      90:	67 07       	cpc	r22, r23
+	in[2] = (minutes >> 4) & 0x07;
+      92:	67 07       	cpc	r22, r23
+      94:	67 07       	cpc	r22, r23
+      96:	67 07       	cpc	r22, r23
+      98:	9a 06       	cpc	r9, r26
+      9a:	67 07       	cpc	r22, r23
+	in[3] = minutes & 0x0F;
+      9c:	67 07       	cpc	r22, r23
+      9e:	67 07       	cpc	r22, r23
+	in[4] = (seconds >> 4) & 0x07;
+      a0:	67 07       	cpc	r22, r23
+      a2:	67 07       	cpc	r22, r23
+      a4:	67 07       	cpc	r22, r23
+      a6:	67 07       	cpc	r22, r23
+      a8:	b3 06       	cpc	r11, r19
+	in[5] = seconds & 0x0F;
+      aa:	67 07       	cpc	r22, r23
+      ac:	67 07       	cpc	r22, r23
+	
+	return 0;
+      ae:	67 07       	cpc	r22, r23
+      b0:	67 07       	cpc	r22, r23
+      b2:	67 07       	cpc	r22, r23
+#include "ds3231.h"
+
+int getTime(uint8_t in[]){
+	TWIStart();
+	if (TWIGetStatus() != 0x08)
+		return -1;
+      b4:	67 07       	cpc	r22, r23
+      b6:	67 07       	cpc	r22, r23
+      b8:	9a 06       	cpc	r9, r26
+	TWIWrite((DSADDRESS<<1) | 0);
+	if (TWIGetStatus() != 0x18)
+		return -1;
+      ba:	67 07       	cpc	r22, r23
+      bc:	67 07       	cpc	r22, r23
+      be:	67 07       	cpc	r22, r23
+	TWIWrite(SECONDS);
+	if (TWIGetStatus() != 0x28)
+		return -1;
+      c0:	67 07       	cpc	r22, r23
+      c2:	67 07       	cpc	r22, r23
+      c4:	67 07       	cpc	r22, r23
+		
+	TWIStart(); //repeated start
+	if (TWIGetStatus() != 0x10)
+		return -1;
+      c6:	67 07       	cpc	r22, r23
+      c8:	b9 06       	cpc	r11, r25
+      ca:	67 07       	cpc	r22, r23
+	TWIWrite((DSADDRESS<<1) | 1);
+	if (TWIGetStatus() != 0x18)
+		return -1;
+      cc:	67 07       	cpc	r22, r23
+      ce:	67 07       	cpc	r22, r23
+      d0:	67 07       	cpc	r22, r23
+	uint8_t seconds = TWIReadACK();
+	if (TWIGetStatus() != 0x50)
+		return -1;
+      d2:	67 07       	cpc	r22, r23
+      d4:	67 07       	cpc	r22, r23
+      d6:	67 07       	cpc	r22, r23
+	uint8_t minutes = TWIReadACK();
+	if (TWIGetStatus() != 0x50)
+		return -1;
+      d8:	bf 06       	cpc	r11, r31
+      da:	67 07       	cpc	r22, r23
+      dc:	67 07       	cpc	r22, r23
+	uint8_t hours = TWIReadNACK();
+	if (TWIGetStatus() != 0x58)
+		return -1;
+      de:	67 07       	cpc	r22, r23
+      e0:	67 07       	cpc	r22, r23
+	in[3] = minutes & 0x0F;
+	in[4] = (seconds >> 4) & 0x07;
+	in[5] = seconds & 0x0F;
+	
+	return 0;
+}
+      e2:	67 07       	cpc	r22, r23
+      e4:	67 07       	cpc	r22, r23
+      e6:	67 07       	cpc	r22, r23
+      e8:	d1 06       	cpc	r13, r17
+      ea:	67 07       	cpc	r22, r23
+      ec:	67 07       	cpc	r22, r23
+      ee:	67 07       	cpc	r22, r23
+      f0:	67 07       	cpc	r22, r23
+      f2:	67 07       	cpc	r22, r23
+      f4:	67 07       	cpc	r22, r23
+      f6:	67 07       	cpc	r22, r23
+      f8:	eb 06       	cpc	r14, r27
+      fa:	67 07       	cpc	r22, r23
+      fc:	67 07       	cpc	r22, r23
+      fe:	67 07       	cpc	r22, r23
+     100:	67 07       	cpc	r22, r23
+     102:	67 07       	cpc	r22, r23
+     104:	67 07       	cpc	r22, r23
+     106:	67 07       	cpc	r22, r23
+     108:	c5 06       	cpc	r12, r21
+     10a:	67 07       	cpc	r22, r23
+     10c:	67 07       	cpc	r22, r23
+     10e:	67 07       	cpc	r22, r23
+     110:	67 07       	cpc	r22, r23
+     112:	67 07       	cpc	r22, r23
+     114:	67 07       	cpc	r22, r23
+     116:	67 07       	cpc	r22, r23
+     118:	df 06       	cpc	r13, r31
+     11a:	67 07       	cpc	r22, r23
+     11c:	67 07       	cpc	r22, r23
+     11e:	67 07       	cpc	r22, r23
+     120:	67 07       	cpc	r22, r23
+     122:	67 07       	cpc	r22, r23
+     124:	67 07       	cpc	r22, r23
+     126:	67 07       	cpc	r22, r23
+     128:	ee 06       	cpc	r14, r30
+     12a:	67 07       	cpc	r22, r23
+     12c:	67 07       	cpc	r22, r23
+     12e:	67 07       	cpc	r22, r23
+     130:	67 07       	cpc	r22, r23
+     132:	67 07       	cpc	r22, r23
+     134:	67 07       	cpc	r22, r23
+     136:	67 07       	cpc	r22, r23
+     138:	ee 06       	cpc	r14, r30
+     13a:	67 07       	cpc	r22, r23
+     13c:	67 07       	cpc	r22, r23
+     13e:	67 07       	cpc	r22, r23
+     140:	67 07       	cpc	r22, r23
+     142:	67 07       	cpc	r22, r23
+     144:	67 07       	cpc	r22, r23
+     146:	67 07       	cpc	r22, r23
+     148:	ee 06       	cpc	r14, r30
+     14a:	67 07       	cpc	r22, r23
+     14c:	67 07       	cpc	r22, r23
+     14e:	67 07       	cpc	r22, r23
+     150:	67 07       	cpc	r22, r23
+     152:	67 07       	cpc	r22, r23
+     154:	67 07       	cpc	r22, r23
+     156:	67 07       	cpc	r22, r23
+     158:	ee 06       	cpc	r14, r30
+     15a:	67 07       	cpc	r22, r23
+     15c:	67 07       	cpc	r22, r23
+     15e:	67 07       	cpc	r22, r23
+     160:	67 07       	cpc	r22, r23
+     162:	67 07       	cpc	r22, r23
+     164:	67 07       	cpc	r22, r23
+     166:	67 07       	cpc	r22, r23
+     168:	f7 06       	cpc	r15, r23
+     16a:	67 07       	cpc	r22, r23
+     16c:	67 07       	cpc	r22, r23
+     16e:	67 07       	cpc	r22, r23
+     170:	67 07       	cpc	r22, r23
+     172:	67 07       	cpc	r22, r23
+     174:	67 07       	cpc	r22, r23
+     176:	67 07       	cpc	r22, r23
+     178:	2a 07       	cpc	r18, r26
+     17a:	67 07       	cpc	r22, r23
+     17c:	67 07       	cpc	r22, r23
+     17e:	67 07       	cpc	r22, r23
+     180:	67 07       	cpc	r22, r23
+     182:	67 07       	cpc	r22, r23
+     184:	67 07       	cpc	r22, r23
+     186:	67 07       	cpc	r22, r23
+     188:	f7 06       	cpc	r15, r23
+     18a:	67 07       	cpc	r22, r23
+     18c:	67 07       	cpc	r22, r23
+     18e:	67 07       	cpc	r22, r23
+     190:	67 07       	cpc	r22, r23
+     192:	67 07       	cpc	r22, r23
+     194:	67 07       	cpc	r22, r23
+     196:	67 07       	cpc	r22, r23
+     198:	2a 07       	cpc	r18, r26
+     19a:	67 07       	cpc	r22, r23
+     19c:	67 07       	cpc	r22, r23
+     19e:	67 07       	cpc	r22, r23
+     1a0:	67 07       	cpc	r22, r23
+     1a2:	67 07       	cpc	r22, r23
+     1a4:	67 07       	cpc	r22, r23
+     1a6:	67 07       	cpc	r22, r23
+     1a8:	0f 07       	cpc	r16, r31
+     1aa:	67 07       	cpc	r22, r23
+     1ac:	67 07       	cpc	r22, r23
+     1ae:	67 07       	cpc	r22, r23
+     1b0:	67 07       	cpc	r22, r23
+     1b2:	67 07       	cpc	r22, r23
+     1b4:	67 07       	cpc	r22, r23
+     1b6:	67 07       	cpc	r22, r23
+     1b8:	2e 07       	cpc	r18, r30
+     1ba:	67 07       	cpc	r22, r23
+     1bc:	67 07       	cpc	r22, r23
+     1be:	67 07       	cpc	r22, r23
+     1c0:	67 07       	cpc	r22, r23
+     1c2:	67 07       	cpc	r22, r23
+     1c4:	67 07       	cpc	r22, r23
+     1c6:	67 07       	cpc	r22, r23
+     1c8:	2e 07       	cpc	r18, r30
+     1ca:	67 07       	cpc	r22, r23
+     1cc:	67 07       	cpc	r22, r23
+     1ce:	67 07       	cpc	r22, r23
+     1d0:	67 07       	cpc	r22, r23
+     1d2:	67 07       	cpc	r22, r23
+     1d4:	67 07       	cpc	r22, r23
+     1d6:	67 07       	cpc	r22, r23
+     1d8:	43 07       	cpc	r20, r19
+     1da:	67 07       	cpc	r22, r23
+     1dc:	67 07       	cpc	r22, r23
+     1de:	67 07       	cpc	r22, r23
+     1e0:	67 07       	cpc	r22, r23
+     1e2:	67 07       	cpc	r22, r23
+     1e4:	67 07       	cpc	r22, r23
+     1e6:	67 07       	cpc	r22, r23
+     1e8:	5d 07       	cpc	r21, r29
+     1ea:	67 07       	cpc	r22, r23
+     1ec:	67 07       	cpc	r22, r23
+     1ee:	67 07       	cpc	r22, r23
+     1f0:	67 07       	cpc	r22, r23
+     1f2:	67 07       	cpc	r22, r23
+     1f4:	67 07       	cpc	r22, r23
+     1f6:	67 07       	cpc	r22, r23
+     1f8:	5d 07       	cpc	r21, r29
+
+000001fa <__ctors_end>:
+     1fa:	11 24       	eor	r1, r1
+     1fc:	1f be       	out	0x3f, r1	; 63
+     1fe:	cf ef       	ldi	r28, 0xFF	; 255
+     200:	d8 e0       	ldi	r29, 0x08	; 8
+     202:	de bf       	out	0x3e, r29	; 62
+     204:	cd bf       	out	0x3d, r28	; 61
+
+00000206 <__do_copy_data>:
+     206:	11 e0       	ldi	r17, 0x01	; 1
+     208:	a0 e0       	ldi	r26, 0x00	; 0
+     20a:	b1 e0       	ldi	r27, 0x01	; 1
+     20c:	e8 e6       	ldi	r30, 0x68	; 104
+     20e:	f0 e1       	ldi	r31, 0x10	; 16
+     210:	02 c0       	rjmp	.+4      	; 0x216 <__do_copy_data+0x10>
+     212:	05 90       	lpm	r0, Z+
+     214:	0d 92       	st	X+, r0
+     216:	a8 30       	cpi	r26, 0x08	; 8
+     218:	b1 07       	cpc	r27, r17
+     21a:	d9 f7       	brne	.-10     	; 0x212 <__do_copy_data+0xc>
+
+0000021c <__do_clear_bss>:
+     21c:	21 e0       	ldi	r18, 0x01	; 1
+     21e:	a8 e0       	ldi	r26, 0x08	; 8
+     220:	b1 e0       	ldi	r27, 0x01	; 1
+     222:	01 c0       	rjmp	.+2      	; 0x226 <.do_clear_bss_start>
+
+00000224 <.do_clear_bss_loop>:
+     224:	1d 92       	st	X+, r1
+
+00000226 <.do_clear_bss_start>:
+     226:	a3 3e       	cpi	r26, 0xE3	; 227
+     228:	b2 07       	cpc	r27, r18
+     22a:	e1 f7       	brne	.-8      	; 0x224 <.do_clear_bss_loop>
+     22c:	0e 94 e8 02 	call	0x5d0	; 0x5d0 <main>
+     230:	0c 94 32 08 	jmp	0x1064	; 0x1064 <_exit>
+
+00000234 <__bad_interrupt>:
+     234:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+00000238 <initInputs>:
+static uint8_t button = 0; //current button state
+static uint8_t buttonInt = 0; //which buttons have changed
+static millis_t lastChange[3] = {0,0,0};
+
+void initInputs(void){
+	cli();
+     238:	f8 94       	cli
+	IO_CTL |= ((1<<DATA)|(1<<CLK)|(1<<LE)|(1<<BL)|(1<<POL)); //set to output, the switches are default input (0)
+     23a:	8a b1       	in	r24, 0x0a	; 10
+     23c:	8f 61       	ori	r24, 0x1F	; 31
+     23e:	8a b9       	out	0x0a, r24	; 10
+	
+	PCICR |= (1<<PCIE2); //enable PORTD pin change interrupt
+     240:	e8 e6       	ldi	r30, 0x68	; 104
+     242:	f0 e0       	ldi	r31, 0x00	; 0
+     244:	80 81       	ld	r24, Z
+     246:	84 60       	ori	r24, 0x04	; 4
+     248:	80 83       	st	Z, r24
+		
+	IO_WR |= ((1<<SW1)|(1<<SW2)|(1<<SW3)); //turn on pull up resistors
+     24a:	8b b1       	in	r24, 0x0b	; 11
+     24c:	80 6e       	ori	r24, 0xE0	; 224
+     24e:	8b b9       	out	0x0b, r24	; 11
+	PCMSK2 |= ((1<<SW1)|(1<<SW2)|(1<<SW3)); //setup interrupt mask
+     250:	ed e6       	ldi	r30, 0x6D	; 109
+     252:	f0 e0       	ldi	r31, 0x00	; 0
+     254:	80 81       	ld	r24, Z
+     256:	80 6e       	ori	r24, 0xE0	; 224
+     258:	80 83       	st	Z, r24
+	
+	PORTB |= 1; //set PB0 pull up
+     25a:	28 9a       	sbi	0x05, 0	; 5
+	
+	IO_WR |=((1<<POL)|(1<<LE)); //set all to off, transparent latch
+     25c:	8b b1       	in	r24, 0x0b	; 11
+     25e:	84 61       	ori	r24, 0x14	; 20
+     260:	8b b9       	out	0x0b, r24	; 11
+	
+	IO_WR &= ~(1<<DATA); //write 0
+     262:	58 98       	cbi	0x0b, 0	; 11
+     264:	80 e4       	ldi	r24, 0x40	; 64
+     266:	90 e0       	ldi	r25, 0x00	; 0
+	
+	for(int i = 0; i<64; i++){ //clear out display
+		IO_WR |= 1<<CLK;
+		_delay_us(1);
+		IO_WR ^= 1<<CLK;
+     268:	32 e0       	ldi	r19, 0x02	; 2
+	IO_WR |=((1<<POL)|(1<<LE)); //set all to off, transparent latch
+	
+	IO_WR &= ~(1<<DATA); //write 0
+	
+	for(int i = 0; i<64; i++){ //clear out display
+		IO_WR |= 1<<CLK;
+     26a:	59 9a       	sbi	0x0b, 1	; 11
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+     26c:	00 00       	nop
+		_delay_us(1);
+		IO_WR ^= 1<<CLK;
+     26e:	2b b1       	in	r18, 0x0b	; 11
+     270:	23 27       	eor	r18, r19
+     272:	2b b9       	out	0x0b, r18	; 11
+     274:	00 00       	nop
+     276:	01 97       	sbiw	r24, 0x01	; 1
+	
+	IO_WR |=((1<<POL)|(1<<LE)); //set all to off, transparent latch
+	
+	IO_WR &= ~(1<<DATA); //write 0
+	
+	for(int i = 0; i<64; i++){ //clear out display
+     278:	c1 f7       	brne	.-16     	; 0x26a <initInputs+0x32>
+		_delay_us(1);
+		IO_WR ^= 1<<CLK;
+		_delay_us(1);
+	}
+	
+	IO_WR |= 1<<BL; //disable blanking
+     27a:	5b 9a       	sbi	0x0b, 3	; 11
+	IO_WR &= ~(1<<LE); //release latch
+     27c:	5a 98       	cbi	0x0b, 2	; 11
+	
+	sei();
+     27e:	78 94       	sei
+     280:	08 95       	ret
+
+00000282 <getButtons>:
+
+uint8_t getButtons(){ //lsb is mode, msb is left
+	uint8_t temp = buttonInt;
+	//buttonInt = 0;
+	return temp;
+}
+     282:	80 91 08 01 	lds	r24, 0x0108
+     286:	08 95       	ret
+
+00000288 <__vector_5>:
+
+ISR(PCINT2_vect){ //when there is a change on the status buttons
+     288:	1f 92       	push	r1
+     28a:	0f 92       	push	r0
+     28c:	0f b6       	in	r0, 0x3f	; 63
+     28e:	0f 92       	push	r0
+     290:	11 24       	eor	r1, r1
+     292:	4f 92       	push	r4
+     294:	5f 92       	push	r5
+     296:	6f 92       	push	r6
+     298:	7f 92       	push	r7
+     29a:	8f 92       	push	r8
+     29c:	9f 92       	push	r9
+     29e:	bf 92       	push	r11
+     2a0:	cf 92       	push	r12
+     2a2:	df 92       	push	r13
+     2a4:	ef 92       	push	r14
+     2a6:	ff 92       	push	r15
+     2a8:	0f 93       	push	r16
+     2aa:	1f 93       	push	r17
+     2ac:	2f 93       	push	r18
+     2ae:	3f 93       	push	r19
+     2b0:	4f 93       	push	r20
+     2b2:	5f 93       	push	r21
+     2b4:	6f 93       	push	r22
+     2b6:	7f 93       	push	r23
+     2b8:	8f 93       	push	r24
+     2ba:	9f 93       	push	r25
+     2bc:	af 93       	push	r26
+     2be:	bf 93       	push	r27
+     2c0:	cf 93       	push	r28
+     2c2:	df 93       	push	r29
+     2c4:	ef 93       	push	r30
+     2c6:	ff 93       	push	r31
+	static uint8_t buttonOld = 0x07; //all buttons begin in the pulled up state
+	
+	button = (IO_RD >> 5) & 0x07; //mask out other pins and shift
+     2c8:	49 b1       	in	r20, 0x09	; 9
+     2ca:	42 95       	swap	r20
+     2cc:	46 95       	lsr	r20
+     2ce:	47 70       	andi	r20, 0x07	; 7
+     2d0:	40 93 09 01 	sts	0x0109, r20
+	uint8_t changed = button ^ buttonOld; //XOR to see which states have changed
+     2d4:	10 91 00 01 	lds	r17, 0x0100
+     2d8:	14 27       	eor	r17, r20
+	
+	millis_t now = millis_get();
+     2da:	0e 94 f3 01 	call	0x3e6	; 0x3e6 <millis_get>
+	
+	for(int i = 0; i<3; i++){
+		if(changed & (1<<i)){ //if the state changed
+			if(now-lastChange[i] >= 50){ //debounce (don't allow state to change too quickly)
+				if((button & (1<<i)) == 0){ //on down press
+     2de:	c0 91 09 01 	lds	r28, 0x0109
+     2e2:	d0 e0       	ldi	r29, 0x00	; 0
+     2e4:	b0 90 08 01 	lds	r11, 0x0108
+     2e8:	ea e0       	ldi	r30, 0x0A	; 10
+     2ea:	f1 e0       	ldi	r31, 0x01	; 1
+	button = (IO_RD >> 5) & 0x07; //mask out other pins and shift
+	uint8_t changed = button ^ buttonOld; //XOR to see which states have changed
+	
+	millis_t now = millis_get();
+	
+	for(int i = 0; i<3; i++){
+     2ec:	20 e0       	ldi	r18, 0x00	; 0
+     2ee:	30 e0       	ldi	r19, 0x00	; 0
+		if(changed & (1<<i)){ //if the state changed
+     2f0:	41 2f       	mov	r20, r17
+     2f2:	50 e0       	ldi	r21, 0x00	; 0
+			if(now-lastChange[i] >= 50){ //debounce (don't allow state to change too quickly)
+				if((button & (1<<i)) == 0){ //on down press
+					buttonInt |= (1<<i);
+				} else { //on release
+					buttonInt &= ~(1<<i);
+     2f4:	44 24       	eor	r4, r4
+     2f6:	43 94       	inc	r4
+     2f8:	51 2c       	mov	r5, r1
+	uint8_t changed = button ^ buttonOld; //XOR to see which states have changed
+	
+	millis_t now = millis_get();
+	
+	for(int i = 0; i<3; i++){
+		if(changed & (1<<i)){ //if the state changed
+     2fa:	da 01       	movw	r26, r20
+     2fc:	02 2e       	mov	r0, r18
+     2fe:	02 c0       	rjmp	.+4      	; 0x304 <__vector_5+0x7c>
+     300:	b5 95       	asr	r27
+     302:	a7 95       	ror	r26
+     304:	0a 94       	dec	r0
+     306:	e2 f7       	brpl	.-8      	; 0x300 <__vector_5+0x78>
+     308:	a0 ff       	sbrs	r26, 0
+     30a:	31 c0       	rjmp	.+98     	; 0x36e <__vector_5+0xe6>
+	uint8_t temp = buttonInt;
+	//buttonInt = 0;
+	return temp;
+}
+
+ISR(PCINT2_vect){ //when there is a change on the status buttons
+     30c:	df 01       	movw	r26, r30
+	
+	millis_t now = millis_get();
+	
+	for(int i = 0; i<3; i++){
+		if(changed & (1<<i)){ //if the state changed
+			if(now-lastChange[i] >= 50){ //debounce (don't allow state to change too quickly)
+     30e:	c0 80       	ld	r12, Z
+     310:	d1 80       	ldd	r13, Z+1	; 0x01
+     312:	e2 80       	ldd	r14, Z+2	; 0x02
+     314:	f3 80       	ldd	r15, Z+3	; 0x03
+     316:	3b 01       	movw	r6, r22
+     318:	4c 01       	movw	r8, r24
+     31a:	6c 18       	sub	r6, r12
+     31c:	7d 08       	sbc	r7, r13
+     31e:	8e 08       	sbc	r8, r14
+     320:	9f 08       	sbc	r9, r15
+     322:	12 e3       	ldi	r17, 0x32	; 50
+     324:	61 16       	cp	r6, r17
+     326:	71 04       	cpc	r7, r1
+     328:	81 04       	cpc	r8, r1
+     32a:	91 04       	cpc	r9, r1
+     32c:	00 f1       	brcs	.+64     	; 0x36e <__vector_5+0xe6>
+				if((button & (1<<i)) == 0){ //on down press
+     32e:	7e 01       	movw	r14, r28
+     330:	02 2e       	mov	r0, r18
+     332:	02 c0       	rjmp	.+4      	; 0x338 <__vector_5+0xb0>
+     334:	f5 94       	asr	r15
+     336:	e7 94       	ror	r14
+     338:	0a 94       	dec	r0
+     33a:	e2 f7       	brpl	.-8      	; 0x334 <__vector_5+0xac>
+     33c:	e0 fc       	sbrc	r14, 0
+     33e:	09 c0       	rjmp	.+18     	; 0x352 <__vector_5+0xca>
+					buttonInt |= (1<<i);
+     340:	72 01       	movw	r14, r4
+     342:	02 2e       	mov	r0, r18
+     344:	02 c0       	rjmp	.+4      	; 0x34a <__vector_5+0xc2>
+     346:	ee 0c       	add	r14, r14
+     348:	ff 1c       	adc	r15, r15
+     34a:	0a 94       	dec	r0
+     34c:	e2 f7       	brpl	.-8      	; 0x346 <__vector_5+0xbe>
+     34e:	be 28       	or	r11, r14
+     350:	09 c0       	rjmp	.+18     	; 0x364 <__vector_5+0xdc>
+				} else { //on release
+					buttonInt &= ~(1<<i);
+     352:	72 01       	movw	r14, r4
+     354:	02 2e       	mov	r0, r18
+     356:	02 c0       	rjmp	.+4      	; 0x35c <__vector_5+0xd4>
+     358:	ee 0c       	add	r14, r14
+     35a:	ff 1c       	adc	r15, r15
+     35c:	0a 94       	dec	r0
+     35e:	e2 f7       	brpl	.-8      	; 0x358 <__vector_5+0xd0>
+     360:	e0 94       	com	r14
+     362:	be 20       	and	r11, r14
+				}
+				lastChange[i] = now;
+     364:	6d 93       	st	X+, r22
+     366:	7d 93       	st	X+, r23
+     368:	8d 93       	st	X+, r24
+     36a:	9c 93       	st	X, r25
+     36c:	13 97       	sbiw	r26, 0x03	; 3
+	button = (IO_RD >> 5) & 0x07; //mask out other pins and shift
+	uint8_t changed = button ^ buttonOld; //XOR to see which states have changed
+	
+	millis_t now = millis_get();
+	
+	for(int i = 0; i<3; i++){
+     36e:	2f 5f       	subi	r18, 0xFF	; 255
+     370:	3f 4f       	sbci	r19, 0xFF	; 255
+     372:	34 96       	adiw	r30, 0x04	; 4
+     374:	23 30       	cpi	r18, 0x03	; 3
+     376:	31 05       	cpc	r19, r1
+     378:	09 f0       	breq	.+2      	; 0x37c <__vector_5+0xf4>
+     37a:	bf cf       	rjmp	.-130    	; 0x2fa <__vector_5+0x72>
+     37c:	b0 92 08 01 	sts	0x0108, r11
+				}
+				lastChange[i] = now;
+			}
+		}
+	}
+	buttonOld = button;
+     380:	80 91 09 01 	lds	r24, 0x0109
+     384:	80 93 00 01 	sts	0x0100, r24
+     388:	ff 91       	pop	r31
+     38a:	ef 91       	pop	r30
+     38c:	df 91       	pop	r29
+     38e:	cf 91       	pop	r28
+     390:	bf 91       	pop	r27
+     392:	af 91       	pop	r26
+     394:	9f 91       	pop	r25
+     396:	8f 91       	pop	r24
+     398:	7f 91       	pop	r23
+     39a:	6f 91       	pop	r22
+     39c:	5f 91       	pop	r21
+     39e:	4f 91       	pop	r20
+     3a0:	3f 91       	pop	r19
+     3a2:	2f 91       	pop	r18
+     3a4:	1f 91       	pop	r17
+     3a6:	0f 91       	pop	r16
+     3a8:	ff 90       	pop	r15
+     3aa:	ef 90       	pop	r14
+     3ac:	df 90       	pop	r13
+     3ae:	cf 90       	pop	r12
+     3b0:	bf 90       	pop	r11
+     3b2:	9f 90       	pop	r9
+     3b4:	8f 90       	pop	r8
+     3b6:	7f 90       	pop	r7
+     3b8:	6f 90       	pop	r6
+     3ba:	5f 90       	pop	r5
+     3bc:	4f 90       	pop	r4
+     3be:	0f 90       	pop	r0
+     3c0:	0f be       	out	0x3f, r0	; 63
+     3c2:	0f 90       	pop	r0
+     3c4:	1f 90       	pop	r1
+     3c6:	18 95       	reti
+
+000003c8 <millis_init>:
+
+// Initialise library
+void millis_init()
+{
+	// Timer settings
+	SET_TCCRA();
+     3c8:	10 92 80 00 	sts	0x0080, r1
+	SET_TCCRB();
+     3cc:	89 e0       	ldi	r24, 0x09	; 9
+     3ce:	80 93 81 00 	sts	0x0081, r24
+	REG_TIMSK = _BV(BIT_OCIE);
+     3d2:	82 e0       	ldi	r24, 0x02	; 2
+     3d4:	80 93 6f 00 	sts	0x006F, r24
+	REG_OCR = ((F_CPU / PRESCALER) / 1000);
+     3d8:	88 ee       	ldi	r24, 0xE8	; 232
+     3da:	93 e0       	ldi	r25, 0x03	; 3
+     3dc:	90 93 89 00 	sts	0x0089, r25
+     3e0:	80 93 88 00 	sts	0x0088, r24
+     3e4:	08 95       	ret
+
+000003e6 <millis_get>:
+}
+
+// Get current milliseconds
+millis_t millis_get()
+{
+     3e6:	0f 93       	push	r16
+     3e8:	1f 93       	push	r17
+	millis_t ms;
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+     3ea:	8f b7       	in	r24, 0x3f	; 63
+    return 1;
+}
+
+static __inline__ uint8_t __iCliRetVal(void)
+{
+    cli();
+     3ec:	f8 94       	cli
+	{
+		ms = milliseconds;
+     3ee:	00 91 16 01 	lds	r16, 0x0116
+     3f2:	10 91 17 01 	lds	r17, 0x0117
+     3f6:	20 91 18 01 	lds	r18, 0x0118
+     3fa:	30 91 19 01 	lds	r19, 0x0119
+    (void)__s;
+}
+
+static __inline__ void __iRestore(const  uint8_t *__s)
+{
+    SREG = *__s;
+     3fe:	8f bf       	out	0x3f, r24	; 63
+	}
+	return ms;
+}
+     400:	60 2f       	mov	r22, r16
+     402:	71 2f       	mov	r23, r17
+     404:	82 2f       	mov	r24, r18
+     406:	93 2f       	mov	r25, r19
+     408:	1f 91       	pop	r17
+     40a:	0f 91       	pop	r16
+     40c:	08 95       	ret
+
+0000040e <__vector_11>:
+		milliseconds -= ms;
+	}
+}
+
+ISR(ISR_VECT)
+{
+     40e:	1f 92       	push	r1
+     410:	0f 92       	push	r0
+     412:	0f b6       	in	r0, 0x3f	; 63
+     414:	0f 92       	push	r0
+     416:	11 24       	eor	r1, r1
+     418:	8f 93       	push	r24
+     41a:	9f 93       	push	r25
+     41c:	af 93       	push	r26
+     41e:	bf 93       	push	r27
+	++milliseconds;
+     420:	80 91 16 01 	lds	r24, 0x0116
+     424:	90 91 17 01 	lds	r25, 0x0117
+     428:	a0 91 18 01 	lds	r26, 0x0118
+     42c:	b0 91 19 01 	lds	r27, 0x0119
+     430:	01 96       	adiw	r24, 0x01	; 1
+     432:	a1 1d       	adc	r26, r1
+     434:	b1 1d       	adc	r27, r1
+     436:	80 93 16 01 	sts	0x0116, r24
+     43a:	90 93 17 01 	sts	0x0117, r25
+     43e:	a0 93 18 01 	sts	0x0118, r26
+     442:	b0 93 19 01 	sts	0x0119, r27
+}
+     446:	bf 91       	pop	r27
+     448:	af 91       	pop	r26
+     44a:	9f 91       	pop	r25
+     44c:	8f 91       	pop	r24
+     44e:	0f 90       	pop	r0
+     450:	0f be       	out	0x3f, r0	; 63
+     452:	0f 90       	pop	r0
+     454:	1f 90       	pop	r1
+     456:	18 95       	reti
+
+00000458 <writeOut>:
+#include "library-gcc/rtc.h"
+#include "library-gcc/twi.h"
+
+enum mode {clock,date,temperature,timer};
+
+void writeOut(uint8_t in[], uint8_t c1, uint8_t c2){ //write buffer to nixie tubes
+     458:	6f 92       	push	r6
+     45a:	7f 92       	push	r7
+     45c:	8f 92       	push	r8
+     45e:	9f 92       	push	r9
+     460:	af 92       	push	r10
+     462:	bf 92       	push	r11
+     464:	cf 92       	push	r12
+     466:	df 92       	push	r13
+     468:	ef 92       	push	r14
+     46a:	ff 92       	push	r15
+     46c:	0f 93       	push	r16
+     46e:	1f 93       	push	r17
+     470:	cf 93       	push	r28
+     472:	df 93       	push	r29
+     474:	4c 01       	movw	r8, r24
+     476:	76 2e       	mov	r7, r22
+     478:	64 2e       	mov	r6, r20
+     47a:	dc 01       	movw	r26, r24
+     47c:	16 96       	adiw	r26, 0x06	; 6
+     47e:	ed e3       	ldi	r30, 0x3D	; 61
+     480:	f0 e0       	ldi	r31, 0x00	; 0
+	uint64_t buffer = 0;
+     482:	f1 2c       	mov	r15, r1
+     484:	e1 2c       	mov	r14, r1
+     486:	d1 2c       	mov	r13, r1
+     488:	c0 e0       	ldi	r28, 0x00	; 0
+     48a:	c1 2c       	mov	r12, r1
+     48c:	b1 2c       	mov	r11, r1
+     48e:	a1 2c       	mov	r10, r1
+     490:	d0 e0       	ldi	r29, 0x00	; 0
+	for(int i = 5; i>=3; i--){ //seconds are on the left of the buffer
+		if(in[i]<10){
+     492:	8e 91       	ld	r24, -X
+     494:	8a 30       	cpi	r24, 0x0A	; 10
+     496:	70 f5       	brcc	.+92     	; 0x4f4 <writeOut+0x9c>
+			if(in[i]==0){
+     498:	81 11       	cpse	r24, r1
+     49a:	13 c0       	rjmp	.+38     	; 0x4c2 <writeOut+0x6a>
+				buffer |= (1ULL << (i*10+11));
+     49c:	21 e0       	ldi	r18, 0x01	; 1
+     49e:	30 e0       	ldi	r19, 0x00	; 0
+     4a0:	40 e0       	ldi	r20, 0x00	; 0
+     4a2:	50 e0       	ldi	r21, 0x00	; 0
+     4a4:	60 e0       	ldi	r22, 0x00	; 0
+     4a6:	70 e0       	ldi	r23, 0x00	; 0
+     4a8:	90 e0       	ldi	r25, 0x00	; 0
+     4aa:	0e 2f       	mov	r16, r30
+     4ac:	0e 94 00 08 	call	0x1000	; 0x1000 <__ashldi3>
+     4b0:	f2 2a       	or	r15, r18
+     4b2:	e3 2a       	or	r14, r19
+     4b4:	d4 2a       	or	r13, r20
+     4b6:	c5 2b       	or	r28, r21
+     4b8:	c6 2a       	or	r12, r22
+     4ba:	b7 2a       	or	r11, r23
+     4bc:	a8 2a       	or	r10, r24
+     4be:	d9 2b       	or	r29, r25
+     4c0:	19 c0       	rjmp	.+50     	; 0x4f4 <writeOut+0x9c>
+#include "library-gcc/rtc.h"
+#include "library-gcc/twi.h"
+
+enum mode {clock,date,temperature,timer};
+
+void writeOut(uint8_t in[], uint8_t c1, uint8_t c2){ //write buffer to nixie tubes
+     4c2:	8f 01       	movw	r16, r30
+     4c4:	0b 50       	subi	r16, 0x0B	; 11
+     4c6:	11 09       	sbc	r17, r1
+	for(int i = 5; i>=3; i--){ //seconds are on the left of the buffer
+		if(in[i]<10){
+			if(in[i]==0){
+				buffer |= (1ULL << (i*10+11));
+				} else {
+				buffer |= (1ULL << (i*10+in[i]+1));
+     4c8:	08 0f       	add	r16, r24
+     4ca:	11 1d       	adc	r17, r1
+     4cc:	0f 5f       	subi	r16, 0xFF	; 255
+     4ce:	1f 4f       	sbci	r17, 0xFF	; 255
+     4d0:	21 e0       	ldi	r18, 0x01	; 1
+     4d2:	30 e0       	ldi	r19, 0x00	; 0
+     4d4:	40 e0       	ldi	r20, 0x00	; 0
+     4d6:	50 e0       	ldi	r21, 0x00	; 0
+     4d8:	60 e0       	ldi	r22, 0x00	; 0
+     4da:	70 e0       	ldi	r23, 0x00	; 0
+     4dc:	80 e0       	ldi	r24, 0x00	; 0
+     4de:	90 e0       	ldi	r25, 0x00	; 0
+     4e0:	0e 94 00 08 	call	0x1000	; 0x1000 <__ashldi3>
+     4e4:	f2 2a       	or	r15, r18
+     4e6:	e3 2a       	or	r14, r19
+     4e8:	d4 2a       	or	r13, r20
+     4ea:	c5 2b       	or	r28, r21
+     4ec:	c6 2a       	or	r12, r22
+     4ee:	b7 2a       	or	r11, r23
+     4f0:	a8 2a       	or	r10, r24
+     4f2:	d9 2b       	or	r29, r25
+     4f4:	3a 97       	sbiw	r30, 0x0a	; 10
+
+enum mode {clock,date,temperature,timer};
+
+void writeOut(uint8_t in[], uint8_t c1, uint8_t c2){ //write buffer to nixie tubes
+	uint64_t buffer = 0;
+	for(int i = 5; i>=3; i--){ //seconds are on the left of the buffer
+     4f6:	ef 31       	cpi	r30, 0x1F	; 31
+     4f8:	f1 05       	cpc	r31, r1
+     4fa:	59 f6       	brne	.-106    	; 0x492 <writeOut+0x3a>
+#include "library-gcc/rtc.h"
+#include "library-gcc/twi.h"
+
+enum mode {clock,date,temperature,timer};
+
+void writeOut(uint8_t in[], uint8_t c1, uint8_t c2){ //write buffer to nixie tubes
+     4fc:	d4 01       	movw	r26, r8
+     4fe:	13 96       	adiw	r26, 0x03	; 3
+     500:	ed e1       	ldi	r30, 0x1D	; 29
+     502:	f0 e0       	ldi	r31, 0x00	; 0
+			}
+		}
+	}
+	
+	for(int i = 2; i>=0; i--){ //hours on the right of the buffer
+		if(in[i]<10){
+     504:	8e 91       	ld	r24, -X
+     506:	8a 30       	cpi	r24, 0x0A	; 10
+     508:	70 f5       	brcc	.+92     	; 0x566 <writeOut+0x10e>
+			if(in[i]==0){
+     50a:	81 11       	cpse	r24, r1
+     50c:	13 c0       	rjmp	.+38     	; 0x534 <writeOut+0xdc>
+				buffer |= (1ULL << ((i+1)*10-1));
+     50e:	21 e0       	ldi	r18, 0x01	; 1
+     510:	30 e0       	ldi	r19, 0x00	; 0
+     512:	40 e0       	ldi	r20, 0x00	; 0
+     514:	50 e0       	ldi	r21, 0x00	; 0
+     516:	60 e0       	ldi	r22, 0x00	; 0
+     518:	70 e0       	ldi	r23, 0x00	; 0
+     51a:	90 e0       	ldi	r25, 0x00	; 0
+     51c:	0e 2f       	mov	r16, r30
+     51e:	0e 94 00 08 	call	0x1000	; 0x1000 <__ashldi3>
+     522:	f2 2a       	or	r15, r18
+     524:	e3 2a       	or	r14, r19
+     526:	d4 2a       	or	r13, r20
+     528:	c5 2b       	or	r28, r21
+     52a:	c6 2a       	or	r12, r22
+     52c:	b7 2a       	or	r11, r23
+     52e:	a8 2a       	or	r10, r24
+     530:	d9 2b       	or	r29, r25
+     532:	19 c0       	rjmp	.+50     	; 0x566 <writeOut+0x10e>
+#include "library-gcc/rtc.h"
+#include "library-gcc/twi.h"
+
+enum mode {clock,date,temperature,timer};
+
+void writeOut(uint8_t in[], uint8_t c1, uint8_t c2){ //write buffer to nixie tubes
+     534:	8f 01       	movw	r16, r30
+     536:	09 50       	subi	r16, 0x09	; 9
+     538:	11 09       	sbc	r17, r1
+	for(int i = 2; i>=0; i--){ //hours on the right of the buffer
+		if(in[i]<10){
+			if(in[i]==0){
+				buffer |= (1ULL << ((i+1)*10-1));
+				} else {
+				buffer |= (1ULL << (i*10+in[i]-1));
+     53a:	08 0f       	add	r16, r24
+     53c:	11 1d       	adc	r17, r1
+     53e:	01 50       	subi	r16, 0x01	; 1
+     540:	11 09       	sbc	r17, r1
+     542:	21 e0       	ldi	r18, 0x01	; 1
+     544:	30 e0       	ldi	r19, 0x00	; 0
+     546:	40 e0       	ldi	r20, 0x00	; 0
+     548:	50 e0       	ldi	r21, 0x00	; 0
+     54a:	60 e0       	ldi	r22, 0x00	; 0
+     54c:	70 e0       	ldi	r23, 0x00	; 0
+     54e:	80 e0       	ldi	r24, 0x00	; 0
+     550:	90 e0       	ldi	r25, 0x00	; 0
+     552:	0e 94 00 08 	call	0x1000	; 0x1000 <__ashldi3>
+     556:	f2 2a       	or	r15, r18
+     558:	e3 2a       	or	r14, r19
+     55a:	d4 2a       	or	r13, r20
+     55c:	c5 2b       	or	r28, r21
+     55e:	c6 2a       	or	r12, r22
+     560:	b7 2a       	or	r11, r23
+     562:	a8 2a       	or	r10, r24
+     564:	d9 2b       	or	r29, r25
+     566:	3a 97       	sbiw	r30, 0x0a	; 10
+				buffer |= (1ULL << (i*10+in[i]+1));
+			}
+		}
+	}
+	
+	for(int i = 2; i>=0; i--){ //hours on the right of the buffer
+     568:	ef 3f       	cpi	r30, 0xFF	; 255
+     56a:	8f ef       	ldi	r24, 0xFF	; 255
+     56c:	f8 07       	cpc	r31, r24
+     56e:	51 f6       	brne	.-108    	; 0x504 <writeOut+0xac>
+				buffer |= (1ULL << (i*10+in[i]-1));
+			}
+		}
+	}
+	
+	if(c1){
+     570:	71 10       	cpse	r7, r1
+		buffer |= 1ULL<<30;
+     572:	c0 64       	ori	r28, 0x40	; 64
+	}
+	if(c2){
+     574:	61 10       	cpse	r6, r1
+		buffer |= 1ULL<<62;
+     576:	d0 64       	ori	r29, 0x40	; 64
+	}
+	for(int i = 63; i>=0; i--){ //write buffer in seconds first
+     578:	ef e3       	ldi	r30, 0x3F	; 63
+     57a:	f0 e0       	ldi	r31, 0x00	; 0
+		uint8_t bit = (buffer >> i) & 0x01;
+     57c:	2f 2d       	mov	r18, r15
+     57e:	3e 2d       	mov	r19, r14
+     580:	4d 2d       	mov	r20, r13
+     582:	5c 2f       	mov	r21, r28
+     584:	6c 2d       	mov	r22, r12
+     586:	7b 2d       	mov	r23, r11
+     588:	8a 2d       	mov	r24, r10
+     58a:	9d 2f       	mov	r25, r29
+     58c:	0e 2f       	mov	r16, r30
+     58e:	0e 94 0f 08 	call	0x101e	; 0x101e <__lshrdi3>
+		if(bit){
+     592:	20 ff       	sbrs	r18, 0
+     594:	02 c0       	rjmp	.+4      	; 0x59a <writeOut+0x142>
+			IO_WR |= (1 << DATA);
+     596:	58 9a       	sbi	0x0b, 0	; 11
+     598:	01 c0       	rjmp	.+2      	; 0x59c <writeOut+0x144>
+		} else {
+			IO_WR &= ~(1 << DATA);
+     59a:	58 98       	cbi	0x0b, 0	; 11
+		}
+		
+		IO_WR |= 1<<CLK;
+     59c:	59 9a       	sbi	0x0b, 1	; 11
+     59e:	00 00       	nop
+		_delay_us(1);
+		IO_WR &= ~(1<<CLK);
+     5a0:	59 98       	cbi	0x0b, 1	; 11
+		buffer |= 1ULL<<30;
+	}
+	if(c2){
+		buffer |= 1ULL<<62;
+	}
+	for(int i = 63; i>=0; i--){ //write buffer in seconds first
+     5a2:	31 97       	sbiw	r30, 0x01	; 1
+     5a4:	58 f7       	brcc	.-42     	; 0x57c <writeOut+0x124>
+		IO_WR |= 1<<CLK;
+		_delay_us(1);
+		IO_WR &= ~(1<<CLK);
+	}
+	
+	IO_WR |= 1<<LE; //latch out
+     5a6:	5a 9a       	sbi	0x0b, 2	; 11
+     5a8:	00 00       	nop
+	_delay_us(1);
+	IO_WR ^= 1<<LE;
+     5aa:	9b b1       	in	r25, 0x0b	; 11
+     5ac:	84 e0       	ldi	r24, 0x04	; 4
+     5ae:	89 27       	eor	r24, r25
+     5b0:	8b b9       	out	0x0b, r24	; 11
+}
+     5b2:	df 91       	pop	r29
+     5b4:	cf 91       	pop	r28
+     5b6:	1f 91       	pop	r17
+     5b8:	0f 91       	pop	r16
+     5ba:	ff 90       	pop	r15
+     5bc:	ef 90       	pop	r14
+     5be:	df 90       	pop	r13
+     5c0:	cf 90       	pop	r12
+     5c2:	bf 90       	pop	r11
+     5c4:	af 90       	pop	r10
+     5c6:	9f 90       	pop	r9
+     5c8:	8f 90       	pop	r8
+     5ca:	7f 90       	pop	r7
+     5cc:	6f 90       	pop	r6
+     5ce:	08 95       	ret
+
+000005d0 <main>:
+
+int main(void)
+{
+     5d0:	cf 93       	push	r28
+     5d2:	df 93       	push	r29
+     5d4:	cd b7       	in	r28, 0x3d	; 61
+     5d6:	de b7       	in	r29, 0x3e	; 62
+     5d8:	64 97       	sbiw	r28, 0x14	; 20
+     5da:	0f b6       	in	r0, 0x3f	; 63
+     5dc:	f8 94       	cli
+     5de:	de bf       	out	0x3e, r29	; 62
+     5e0:	0f be       	out	0x3f, r0	; 63
+     5e2:	cd bf       	out	0x3d, r28	; 61
+	initInputs(); //initialize
+     5e4:	0e 94 1c 01 	call	0x238	; 0x238 <initInputs>
+	millis_init();	
+     5e8:	0e 94 e4 01 	call	0x3c8	; 0x3c8 <millis_init>
+	twi_init_master();
+     5ec:	0e 94 78 07 	call	0xef0	; 0xef0 <twi_init_master>
+	rtc_init();
+     5f0:	0e 94 a1 04 	call	0x942	; 0x942 <rtc_init>
+	struct tm* t = NULL;  
+
+	uint8_t output[6] = {0,0,0,0,0,0}; //output buffer
+     5f4:	fe 01       	movw	r30, r28
+     5f6:	31 96       	adiw	r30, 0x01	; 1
+     5f8:	86 e0       	ldi	r24, 0x06	; 6
+     5fa:	df 01       	movw	r26, r30
+     5fc:	1d 92       	st	X+, r1
+     5fe:	8a 95       	dec	r24
+     600:	e9 f7       	brne	.-6      	; 0x5fc <main+0x2c>
+	rtc_set_time(t);
+	*/
+	
+	uint8_t oldMin = 0;
+	uint8_t oldSec = 0;
+	uint8_t roll[6] = {1,2,3,4,5,6}; //temporary buffer for rolling digits animation
+     602:	86 e0       	ldi	r24, 0x06	; 6
+     604:	e1 e0       	ldi	r30, 0x01	; 1
+     606:	f1 e0       	ldi	r31, 0x01	; 1
+     608:	de 01       	movw	r26, r28
+     60a:	17 96       	adiw	r26, 0x07	; 7
+     60c:	01 90       	ld	r0, Z+
+     60e:	0d 92       	st	X+, r0
+     610:	8a 95       	dec	r24
+     612:	e1 f7       	brne	.-8      	; 0x60c <main+0x3c>
+	uint8_t sepa = 0; //digit separators
+	uint8_t rollover = 6; //what digit to roll over
+	uint8_t doublecycle = 0; //to roll digits through two cycles
+	uint8_t buttons = 0;
+	uint8_t heldButtons = 0;
+	int8_t temp1 = 0;
+     614:	1d 86       	std	Y+13, r1	; 0x0d
+	uint8_t temp2 = 0;
+     616:	1e 86       	std	Y+14, r1	; 0x0e
+	millis_t entryTime = 0;
+     618:	18 8a       	std	Y+16, r1	; 0x10
+     61a:	19 8a       	std	Y+17, r1	; 0x11
+     61c:	1a 8a       	std	Y+18, r1	; 0x12
+     61e:	1b 8a       	std	Y+19, r1	; 0x13
+	uint8_t roll[6] = {1,2,3,4,5,6}; //temporary buffer for rolling digits animation
+	uint8_t sepa = 0; //digit separators
+	uint8_t rollover = 6; //what digit to roll over
+	uint8_t doublecycle = 0; //to roll digits through two cycles
+	uint8_t buttons = 0;
+	uint8_t heldButtons = 0;
+     620:	91 2c       	mov	r9, r1
+	uint8_t oldMin = 0;
+	uint8_t oldSec = 0;
+	uint8_t roll[6] = {1,2,3,4,5,6}; //temporary buffer for rolling digits animation
+	uint8_t sepa = 0; //digit separators
+	uint8_t rollover = 6; //what digit to roll over
+	uint8_t doublecycle = 0; //to roll digits through two cycles
+     622:	1c 8a       	std	Y+20, r1	; 0x14
+	
+	uint8_t oldMin = 0;
+	uint8_t oldSec = 0;
+	uint8_t roll[6] = {1,2,3,4,5,6}; //temporary buffer for rolling digits animation
+	uint8_t sepa = 0; //digit separators
+	uint8_t rollover = 6; //what digit to roll over
+     624:	0f 2e       	mov	r0, r31
+     626:	f6 e0       	ldi	r31, 0x06	; 6
+     628:	4f 2e       	mov	r4, r31
+     62a:	f0 2d       	mov	r31, r0
+	*/
+	
+	uint8_t oldMin = 0;
+	uint8_t oldSec = 0;
+	uint8_t roll[6] = {1,2,3,4,5,6}; //temporary buffer for rolling digits animation
+	uint8_t sepa = 0; //digit separators
+     62c:	81 2c       	mov	r8, r1
+
+	rtc_set_time(t);
+	*/
+	
+	uint8_t oldMin = 0;
+	uint8_t oldSec = 0;
+     62e:	21 2c       	mov	r2, r1
+	t->mday = 16;
+
+	rtc_set_time(t);
+	*/
+	
+	uint8_t oldMin = 0;
+     630:	31 2c       	mov	r3, r1
+			output[3] = temp1%10;
+			output[4] = temp2/10;
+			output[5] = temp2%10;
+			
+		} else if(state == timer) {
+			sepa = 1;
+     632:	cc 24       	eor	r12, r12
+     634:	c3 94       	inc	r12
+			if(millis_get()-entryTime > 10000){
+				state = clock;
+			}
+			ds3231_get_temp_int(&temp1,&temp2);
+			sepa = 1;
+			output[0] = 11; //set blank
+     636:	0f 2e       	mov	r0, r31
+     638:	fb e0       	ldi	r31, 0x0B	; 11
+     63a:	df 2e       	mov	r13, r31
+     63c:	f0 2d       	mov	r31, r0
+			output[1] = 11;
+			output[2] = temp1/10;
+			output[3] = temp1%10;
+			output[4] = temp2/10;
+     63e:	0f 2e       	mov	r0, r31
+     640:	fd ec       	ldi	r31, 0xCD	; 205
+     642:	5f 2e       	mov	r5, r31
+     644:	f0 2d       	mov	r31, r0
+			}
+			if(millis_get()-entryTime > 10000){
+				state = clock;
+			}
+			sepa = 1;
+			output[1] = (t->mon)%10; //get date in MM/DD/YY
+     646:	0f 2e       	mov	r0, r31
+     648:	fa e0       	ldi	r31, 0x0A	; 10
+     64a:	af 2e       	mov	r10, r31
+     64c:	b1 2c       	mov	r11, r1
+     64e:	f0 2d       	mov	r31, r0
+	IO_WR |= 1<<LE; //latch out
+	_delay_us(1);
+	IO_WR ^= 1<<LE;
+}
+
+int main(void)
+     650:	0f 2e       	mov	r0, r31
+     652:	f7 e0       	ldi	r31, 0x07	; 7
+     654:	ef 2e       	mov	r14, r31
+     656:	f1 2c       	mov	r15, r1
+     658:	f0 2d       	mov	r31, r0
+     65a:	ec 0e       	add	r14, r28
+     65c:	fd 1e       	adc	r15, r29
+					
+			if(oldMin != output[3] && rollover == 0){ //if minutes change
+				rollover = 6;
+				roll[0] = 1;
+				roll[1] = 2;
+				roll[2] = 3;
+     65e:	3f 86       	std	Y+15, r3	; 0x0f
+     660:	72 2c       	mov	r7, r2
+     662:	34 2c       	mov	r3, r4
+     664:	c7 01       	movw	r24, r14
+     666:	e8 2c       	mov	r14, r8
+     668:	f9 2c       	mov	r15, r9
+     66a:	4c 01       	movw	r8, r24
+	enum mode state = clock;
+	enum mode oldState = state;
+	
+    while(1)
+    {	
+		t = rtc_get_time();
+     66c:	0e 94 cf 04 	call	0x99e	; 0x99e <rtc_get_time>
+     670:	8c 01       	movw	r16, r24
+		//update state of buttons
+		buttons = getButtons();
+     672:	0e 94 41 01 	call	0x282	; 0x282 <getButtons>
+     676:	48 2e       	mov	r4, r24
+		if(buttons & 0x01){
+     678:	80 ff       	sbrs	r24, 0
+     67a:	09 c0       	rjmp	.+18     	; 0x68e <main+0xbe>
+			if(heldButtons & 0x01){
+     67c:	f0 fc       	sbrc	r15, 0
+     67e:	09 c0       	rjmp	.+18     	; 0x692 <main+0xc2>
+				
+			} else {
+				state = (state+1)%4;
+     680:	82 2d       	mov	r24, r2
+     682:	90 e0       	ldi	r25, 0x00	; 0
+     684:	01 96       	adiw	r24, 0x01	; 1
+     686:	83 70       	andi	r24, 0x03	; 3
+     688:	90 78       	andi	r25, 0x80	; 128
+     68a:	f8 2e       	mov	r15, r24
+     68c:	03 c0       	rjmp	.+6      	; 0x694 <main+0xc4>
+    while(1)
+    {	
+		t = rtc_get_time();
+		//update state of buttons
+		buttons = getButtons();
+		if(buttons & 0x01){
+     68e:	f2 2c       	mov	r15, r2
+     690:	01 c0       	rjmp	.+2      	; 0x694 <main+0xc4>
+			if(heldButtons & 0x01){
+     692:	f2 2c       	mov	r15, r2
+			}
+		}
+		heldButtons = buttons;
+		
+		//go to correct mode
+		if(state == clock){
+     694:	f1 10       	cpse	r15, r1
+     696:	8a c0       	rjmp	.+276    	; 0x7ac <main+0x1dc>
+			output[1] = (t->hour)%10; //get time in HH/MM/SS
+     698:	f8 01       	movw	r30, r16
+     69a:	84 81       	ldd	r24, Z+4	; 0x04
+     69c:	95 81       	ldd	r25, Z+5	; 0x05
+     69e:	b5 01       	movw	r22, r10
+     6a0:	0e 94 e6 07 	call	0xfcc	; 0xfcc <__divmodhi4>
+     6a4:	8a 83       	std	Y+2, r24	; 0x02
+			output[0] = (t->hour)/10;
+     6a6:	69 83       	std	Y+1, r22	; 0x01
+			output[3] = (t->min)%10;
+     6a8:	82 81       	ldd	r24, Z+2	; 0x02
+     6aa:	93 81       	ldd	r25, Z+3	; 0x03
+     6ac:	b5 01       	movw	r22, r10
+     6ae:	0e 94 e6 07 	call	0xfcc	; 0xfcc <__divmodhi4>
+     6b2:	28 2f       	mov	r18, r24
+     6b4:	8c 83       	std	Y+4, r24	; 0x04
+			output[2] = (t->min)/10;
+     6b6:	82 81       	ldd	r24, Z+2	; 0x02
+     6b8:	93 81       	ldd	r25, Z+3	; 0x03
+     6ba:	b5 01       	movw	r22, r10
+     6bc:	0e 94 e6 07 	call	0xfcc	; 0xfcc <__divmodhi4>
+     6c0:	6b 83       	std	Y+3, r22	; 0x03
+			output[5] = (t->sec)%10;
+     6c2:	80 81       	ld	r24, Z
+     6c4:	91 81       	ldd	r25, Z+1	; 0x01
+     6c6:	b5 01       	movw	r22, r10
+     6c8:	0e 94 e6 07 	call	0xfcc	; 0xfcc <__divmodhi4>
+     6cc:	38 2f       	mov	r19, r24
+     6ce:	8e 83       	std	Y+6, r24	; 0x06
+			output[4] = (t->sec)/10;
+     6d0:	80 81       	ld	r24, Z
+     6d2:	91 81       	ldd	r25, Z+1	; 0x01
+     6d4:	b5 01       	movw	r22, r10
+     6d6:	0e 94 e6 07 	call	0xfcc	; 0xfcc <__divmodhi4>
+     6da:	6d 83       	std	Y+5, r22	; 0x05
+			
+			if(oldSec != output[5]){ //if seconds change
+     6dc:	73 12       	cpse	r7, r19
+				sepa ^= 1;
+     6de:	ec 24       	eor	r14, r12
+			}
+					
+			if(oldMin != output[3] && rollover == 0){ //if minutes change
+     6e0:	ff 85       	ldd	r31, Y+15	; 0x0f
+     6e2:	f2 17       	cp	r31, r18
+     6e4:	91 f0       	breq	.+36     	; 0x70a <main+0x13a>
+     6e6:	31 10       	cpse	r3, r1
+     6e8:	13 c0       	rjmp	.+38     	; 0x710 <main+0x140>
+				rollover = 6;
+				roll[0] = 1;
+     6ea:	cf 82       	std	Y+7, r12	; 0x07
+				roll[1] = 2;
+     6ec:	22 e0       	ldi	r18, 0x02	; 2
+     6ee:	28 87       	std	Y+8, r18	; 0x08
+				roll[2] = 3;
+     6f0:	33 e0       	ldi	r19, 0x03	; 3
+     6f2:	39 87       	std	Y+9, r19	; 0x09
+				roll[3] = 4;
+     6f4:	84 e0       	ldi	r24, 0x04	; 4
+     6f6:	8a 87       	std	Y+10, r24	; 0x0a
+				roll[4] = 5;
+     6f8:	85 e0       	ldi	r24, 0x05	; 5
+     6fa:	8b 87       	std	Y+11, r24	; 0x0b
+				roll[5] = 6;
+     6fc:	86 e0       	ldi	r24, 0x06	; 6
+     6fe:	8c 87       	std	Y+12, r24	; 0x0c
+			if(oldSec != output[5]){ //if seconds change
+				sepa ^= 1;
+			}
+					
+			if(oldMin != output[3] && rollover == 0){ //if minutes change
+				rollover = 6;
+     700:	0f 2e       	mov	r0, r31
+     702:	f6 e0       	ldi	r31, 0x06	; 6
+     704:	3f 2e       	mov	r3, r31
+     706:	f0 2d       	mov	r31, r0
+     708:	03 c0       	rjmp	.+6      	; 0x710 <main+0x140>
+				roll[3] = 4;
+				roll[4] = 5;
+				roll[5] = 6;
+			}
+					
+			if(rollover){ //if there are still digits to roll
+     70a:	33 20       	and	r3, r3
+     70c:	09 f4       	brne	.+2      	; 0x710 <main+0x140>
+     70e:	49 c0       	rjmp	.+146    	; 0x7a2 <main+0x1d2>
+				if(output[rollover-1]==roll[rollover-1]){ //if digits match
+     710:	83 2d       	mov	r24, r3
+     712:	90 e0       	ldi	r25, 0x00	; 0
+     714:	01 97       	sbiw	r24, 0x01	; 1
+     716:	e1 e0       	ldi	r30, 0x01	; 1
+     718:	f0 e0       	ldi	r31, 0x00	; 0
+     71a:	ec 0f       	add	r30, r28
+     71c:	fd 1f       	adc	r31, r29
+     71e:	e8 0f       	add	r30, r24
+     720:	f9 1f       	adc	r31, r25
+     722:	a7 e0       	ldi	r26, 0x07	; 7
+     724:	b0 e0       	ldi	r27, 0x00	; 0
+     726:	ac 0f       	add	r26, r28
+     728:	bd 1f       	adc	r27, r29
+     72a:	a8 0f       	add	r26, r24
+     72c:	b9 1f       	adc	r27, r25
+     72e:	20 81       	ld	r18, Z
+     730:	8c 91       	ld	r24, X
+     732:	28 13       	cpse	r18, r24
+     734:	07 c0       	rjmp	.+14     	; 0x744 <main+0x174>
+					doublecycle++;
+     736:	4c 89       	ldd	r20, Y+20	; 0x14
+     738:	4f 5f       	subi	r20, 0xFF	; 255
+     73a:	4c 8b       	std	Y+20, r20	; 0x14
+					if(doublecycle == 2){
+     73c:	42 30       	cpi	r20, 0x02	; 2
+     73e:	11 f4       	brne	.+4      	; 0x744 <main+0x174>
+						rollover--; //move to next digit
+     740:	3a 94       	dec	r3
+						doublecycle = 0;
+     742:	1c 8a       	std	Y+20, r1	; 0x14
+					}
+				}
+				for(int i = rollover-1; i>=0; i--){ //roll all other digits
+     744:	83 2d       	mov	r24, r3
+     746:	90 e0       	ldi	r25, 0x00	; 0
+     748:	01 97       	sbiw	r24, 0x01	; 1
+     74a:	2a f1       	brmi	.+74     	; 0x796 <main+0x1c6>
+	IO_WR |= 1<<LE; //latch out
+	_delay_us(1);
+	IO_WR ^= 1<<LE;
+}
+
+int main(void)
+     74c:	e3 2d       	mov	r30, r3
+     74e:	f0 e0       	ldi	r31, 0x00	; 0
+     750:	27 e0       	ldi	r18, 0x07	; 7
+     752:	30 e0       	ldi	r19, 0x00	; 0
+     754:	2c 0f       	add	r18, r28
+     756:	3d 1f       	adc	r19, r29
+     758:	2e 0f       	add	r18, r30
+     75a:	3f 1f       	adc	r19, r31
+     75c:	81 e0       	ldi	r24, 0x01	; 1
+     75e:	90 e0       	ldi	r25, 0x00	; 0
+     760:	8c 0f       	add	r24, r28
+     762:	9d 1f       	adc	r25, r29
+     764:	e8 0f       	add	r30, r24
+     766:	f9 1f       	adc	r31, r25
+     768:	21 50       	subi	r18, 0x01	; 1
+     76a:	31 09       	sbc	r19, r1
+     76c:	d9 01       	movw	r26, r18
+						rollover--; //move to next digit
+						doublecycle = 0;
+					}
+				}
+				for(int i = rollover-1; i>=0; i--){ //roll all other digits
+					output[i] = roll[i];
+     76e:	8c 91       	ld	r24, X
+     770:	31 97       	sbiw	r30, 0x01	; 1
+     772:	80 83       	st	Z, r24
+					roll[i]++;
+     774:	8f 5f       	subi	r24, 0xFF	; 255
+					roll[i] = roll[i]%10;
+     776:	85 9d       	mul	r24, r5
+     778:	91 2d       	mov	r25, r1
+     77a:	11 24       	eor	r1, r1
+     77c:	96 95       	lsr	r25
+     77e:	96 95       	lsr	r25
+     780:	96 95       	lsr	r25
+     782:	99 0f       	add	r25, r25
+     784:	49 2f       	mov	r20, r25
+     786:	44 0f       	add	r20, r20
+     788:	44 0f       	add	r20, r20
+     78a:	94 0f       	add	r25, r20
+     78c:	89 1b       	sub	r24, r25
+     78e:	8c 93       	st	X, r24
+					if(doublecycle == 2){
+						rollover--; //move to next digit
+						doublecycle = 0;
+					}
+				}
+				for(int i = rollover-1; i>=0; i--){ //roll all other digits
+     790:	28 15       	cp	r18, r8
+     792:	39 05       	cpc	r19, r9
+     794:	49 f7       	brne	.-46     	; 0x768 <main+0x198>
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+     796:	a9 ef       	ldi	r26, 0xF9	; 249
+     798:	b0 e0       	ldi	r27, 0x00	; 0
+     79a:	11 97       	sbiw	r26, 0x01	; 1
+     79c:	f1 f7       	brne	.-4      	; 0x79a <main+0x1ca>
+     79e:	00 c0       	rjmp	.+0      	; 0x7a0 <main+0x1d0>
+     7a0:	00 00       	nop
+					roll[i] = roll[i]%10;
+				}
+				_delay_ms(1);
+			}
+			
+			oldSec = output[5];
+     7a2:	7e 80       	ldd	r7, Y+6	; 0x06
+			oldMin = output[3];
+     7a4:	bc 81       	ldd	r27, Y+4	; 0x04
+     7a6:	bf 87       	std	Y+15, r27	; 0x0f
+     7a8:	2f 2c       	mov	r2, r15
+     7aa:	94 c0       	rjmp	.+296    	; 0x8d4 <main+0x304>
+		} else if(state == date) {
+     7ac:	e1 e0       	ldi	r30, 0x01	; 1
+     7ae:	fe 12       	cpse	r15, r30
+     7b0:	3a c0       	rjmp	.+116    	; 0x826 <main+0x256>
+			if(oldState!=state){
+     7b2:	2e 16       	cp	r2, r30
+     7b4:	31 f0       	breq	.+12     	; 0x7c2 <main+0x1f2>
+				entryTime = millis_get();
+     7b6:	0e 94 f3 01 	call	0x3e6	; 0x3e6 <millis_get>
+     7ba:	68 8b       	std	Y+16, r22	; 0x10
+     7bc:	79 8b       	std	Y+17, r23	; 0x11
+     7be:	8a 8b       	std	Y+18, r24	; 0x12
+     7c0:	9b 8b       	std	Y+19, r25	; 0x13
+			}
+			if(millis_get()-entryTime > 10000){
+     7c2:	0e 94 f3 01 	call	0x3e6	; 0x3e6 <millis_get>
+     7c6:	dc 01       	movw	r26, r24
+     7c8:	cb 01       	movw	r24, r22
+     7ca:	28 89       	ldd	r18, Y+16	; 0x10
+     7cc:	39 89       	ldd	r19, Y+17	; 0x11
+     7ce:	4a 89       	ldd	r20, Y+18	; 0x12
+     7d0:	5b 89       	ldd	r21, Y+19	; 0x13
+     7d2:	82 1b       	sub	r24, r18
+     7d4:	93 0b       	sbc	r25, r19
+     7d6:	a4 0b       	sbc	r26, r20
+     7d8:	b5 0b       	sbc	r27, r21
+     7da:	2c 2c       	mov	r2, r12
+     7dc:	81 31       	cpi	r24, 0x11	; 17
+     7de:	97 42       	sbci	r25, 0x27	; 39
+     7e0:	a1 05       	cpc	r26, r1
+     7e2:	b1 05       	cpc	r27, r1
+     7e4:	08 f0       	brcs	.+2      	; 0x7e8 <main+0x218>
+     7e6:	21 2c       	mov	r2, r1
+				state = clock;
+			}
+			sepa = 1;
+			output[1] = (t->mon)%10; //get date in MM/DD/YY
+     7e8:	d8 01       	movw	r26, r16
+     7ea:	18 96       	adiw	r26, 0x08	; 8
+     7ec:	8d 91       	ld	r24, X+
+     7ee:	9c 91       	ld	r25, X
+     7f0:	19 97       	sbiw	r26, 0x09	; 9
+     7f2:	b5 01       	movw	r22, r10
+     7f4:	0e 94 e6 07 	call	0xfcc	; 0xfcc <__divmodhi4>
+     7f8:	8a 83       	std	Y+2, r24	; 0x02
+			output[0] = (t->mon)/10;
+     7fa:	69 83       	std	Y+1, r22	; 0x01
+			output[3] = (t->mday)%10;
+     7fc:	f8 01       	movw	r30, r16
+     7fe:	86 81       	ldd	r24, Z+6	; 0x06
+     800:	97 81       	ldd	r25, Z+7	; 0x07
+     802:	b5 01       	movw	r22, r10
+     804:	0e 94 e6 07 	call	0xfcc	; 0xfcc <__divmodhi4>
+     808:	8c 83       	std	Y+4, r24	; 0x04
+			output[2] = (t->mday)/10;
+     80a:	6b 83       	std	Y+3, r22	; 0x03
+			output[5] = (t->year)%10;
+     80c:	82 85       	ldd	r24, Z+10	; 0x0a
+     80e:	93 85       	ldd	r25, Z+11	; 0x0b
+     810:	b5 01       	movw	r22, r10
+     812:	0e 94 e6 07 	call	0xfcc	; 0xfcc <__divmodhi4>
+     816:	8e 83       	std	Y+6, r24	; 0x06
+			output[4] = ((t->year)/10)%10;		
+     818:	cb 01       	movw	r24, r22
+     81a:	b5 01       	movw	r22, r10
+     81c:	0e 94 e6 07 	call	0xfcc	; 0xfcc <__divmodhi4>
+     820:	8d 83       	std	Y+5, r24	; 0x05
+				entryTime = millis_get();
+			}
+			if(millis_get()-entryTime > 10000){
+				state = clock;
+			}
+			sepa = 1;
+     822:	ec 2c       	mov	r14, r12
+     824:	57 c0       	rjmp	.+174    	; 0x8d4 <main+0x304>
+			output[0] = (t->mon)/10;
+			output[3] = (t->mday)%10;
+			output[2] = (t->mday)/10;
+			output[5] = (t->year)%10;
+			output[4] = ((t->year)/10)%10;		
+		} else if(state == temperature) {
+     826:	f2 e0       	ldi	r31, 0x02	; 2
+     828:	ff 12       	cpse	r15, r31
+     82a:	47 c0       	rjmp	.+142    	; 0x8ba <main+0x2ea>
+			if(oldState!=state){
+     82c:	2f 16       	cp	r2, r31
+     82e:	31 f0       	breq	.+12     	; 0x83c <main+0x26c>
+				entryTime = millis_get();
+     830:	0e 94 f3 01 	call	0x3e6	; 0x3e6 <millis_get>
+     834:	68 8b       	std	Y+16, r22	; 0x10
+     836:	79 8b       	std	Y+17, r23	; 0x11
+     838:	8a 8b       	std	Y+18, r24	; 0x12
+     83a:	9b 8b       	std	Y+19, r25	; 0x13
+			}
+			if(millis_get()-entryTime > 10000){
+     83c:	0e 94 f3 01 	call	0x3e6	; 0x3e6 <millis_get>
+     840:	dc 01       	movw	r26, r24
+     842:	cb 01       	movw	r24, r22
+     844:	28 89       	ldd	r18, Y+16	; 0x10
+     846:	39 89       	ldd	r19, Y+17	; 0x11
+     848:	4a 89       	ldd	r20, Y+18	; 0x12
+     84a:	5b 89       	ldd	r21, Y+19	; 0x13
+     84c:	82 1b       	sub	r24, r18
+     84e:	93 0b       	sbc	r25, r19
+     850:	a4 0b       	sbc	r26, r20
+     852:	b5 0b       	sbc	r27, r21
+     854:	81 31       	cpi	r24, 0x11	; 17
+     856:	97 42       	sbci	r25, 0x27	; 39
+     858:	a1 05       	cpc	r26, r1
+     85a:	b1 05       	cpc	r27, r1
+     85c:	10 f4       	brcc	.+4      	; 0x862 <main+0x292>
+     85e:	2f 2c       	mov	r2, r15
+     860:	01 c0       	rjmp	.+2      	; 0x864 <main+0x294>
+				state = clock;
+     862:	21 2c       	mov	r2, r1
+			}
+			ds3231_get_temp_int(&temp1,&temp2);
+     864:	be 01       	movw	r22, r28
+     866:	62 5f       	subi	r22, 0xF2	; 242
+     868:	7f 4f       	sbci	r23, 0xFF	; 255
+     86a:	ce 01       	movw	r24, r28
+     86c:	0d 96       	adiw	r24, 0x0d	; 13
+     86e:	0e 94 69 05 	call	0xad2	; 0xad2 <ds3231_get_temp_int>
+			sepa = 1;
+			output[0] = 11; //set blank
+     872:	d9 82       	std	Y+1, r13	; 0x01
+			output[1] = 11;
+     874:	da 82       	std	Y+2, r13	; 0x02
+			output[2] = temp1/10;
+     876:	8d 85       	ldd	r24, Y+13	; 0x0d
+     878:	47 e6       	ldi	r20, 0x67	; 103
+     87a:	84 02       	muls	r24, r20
+     87c:	91 2d       	mov	r25, r1
+     87e:	11 24       	eor	r1, r1
+     880:	95 95       	asr	r25
+     882:	95 95       	asr	r25
+     884:	87 fd       	sbrc	r24, 7
+     886:	93 95       	inc	r25
+     888:	9b 83       	std	Y+3, r25	; 0x03
+			output[3] = temp1%10;
+     88a:	99 0f       	add	r25, r25
+     88c:	29 2f       	mov	r18, r25
+     88e:	22 0f       	add	r18, r18
+     890:	22 0f       	add	r18, r18
+     892:	92 0f       	add	r25, r18
+     894:	89 1b       	sub	r24, r25
+     896:	8c 83       	std	Y+4, r24	; 0x04
+			output[4] = temp2/10;
+     898:	8e 85       	ldd	r24, Y+14	; 0x0e
+     89a:	85 9d       	mul	r24, r5
+     89c:	91 2d       	mov	r25, r1
+     89e:	11 24       	eor	r1, r1
+     8a0:	96 95       	lsr	r25
+     8a2:	96 95       	lsr	r25
+     8a4:	96 95       	lsr	r25
+     8a6:	9d 83       	std	Y+5, r25	; 0x05
+			output[5] = temp2%10;
+     8a8:	99 0f       	add	r25, r25
+     8aa:	29 2f       	mov	r18, r25
+     8ac:	22 0f       	add	r18, r18
+     8ae:	22 0f       	add	r18, r18
+     8b0:	92 0f       	add	r25, r18
+     8b2:	89 1b       	sub	r24, r25
+     8b4:	8e 83       	std	Y+6, r24	; 0x06
+			}
+			if(millis_get()-entryTime > 10000){
+				state = clock;
+			}
+			ds3231_get_temp_int(&temp1,&temp2);
+			sepa = 1;
+     8b6:	ec 2c       	mov	r14, r12
+     8b8:	0d c0       	rjmp	.+26     	; 0x8d4 <main+0x304>
+			output[2] = temp1/10;
+			output[3] = temp1%10;
+			output[4] = temp2/10;
+			output[5] = temp2%10;
+			
+		} else if(state == timer) {
+     8ba:	53 e0       	ldi	r21, 0x03	; 3
+     8bc:	f5 12       	cpse	r15, r21
+     8be:	09 c0       	rjmp	.+18     	; 0x8d2 <main+0x302>
+			sepa = 1;
+			output[0] = 0;
+     8c0:	19 82       	std	Y+1, r1	; 0x01
+			output[1] = 0;
+     8c2:	1a 82       	std	Y+2, r1	; 0x02
+			output[2] = 0;
+     8c4:	1b 82       	std	Y+3, r1	; 0x03
+			output[3] = 0;
+     8c6:	1c 82       	std	Y+4, r1	; 0x04
+			output[4] = 0;
+     8c8:	1d 82       	std	Y+5, r1	; 0x05
+			output[5] = 0;
+     8ca:	1e 82       	std	Y+6, r1	; 0x06
+     8cc:	2f 2c       	mov	r2, r15
+			output[3] = temp1%10;
+			output[4] = temp2/10;
+			output[5] = temp2%10;
+			
+		} else if(state == timer) {
+			sepa = 1;
+     8ce:	ec 2c       	mov	r14, r12
+     8d0:	01 c0       	rjmp	.+2      	; 0x8d4 <main+0x304>
+			output[2] = temp1/10;
+			output[3] = temp1%10;
+			output[4] = temp2/10;
+			output[5] = temp2%10;
+			
+		} else if(state == timer) {
+     8d2:	2f 2c       	mov	r2, r15
+			output[2] = 0;
+			output[3] = 0;
+			output[4] = 0;
+			output[5] = 0;
+		}
+		writeOut(output,sepa,sepa);
+     8d4:	4e 2d       	mov	r20, r14
+     8d6:	6e 2d       	mov	r22, r14
+     8d8:	ce 01       	movw	r24, r28
+     8da:	01 96       	adiw	r24, 0x01	; 1
+     8dc:	0e 94 2c 02 	call	0x458	; 0x458 <writeOut>
+				
+			} else {
+				state = (state+1)%4;
+			}
+		}
+		heldButtons = buttons;
+     8e0:	f4 2c       	mov	r15, r4
+			output[4] = 0;
+			output[5] = 0;
+		}
+		writeOut(output,sepa,sepa);
+		oldState = state;
+    }
+     8e2:	c4 ce       	rjmp	.-632    	; 0x66c <main+0x9c>
+
+000008e4 <bcd2dec>:
+  return ((d/10 * 16) + (d % 10));
+}
+
+uint8_t bcd2dec(uint8_t b)
+{
+  return ((b/16 * 10) + (b % 16));
+     8e4:	98 2f       	mov	r25, r24
+     8e6:	92 95       	swap	r25
+     8e8:	9f 70       	andi	r25, 0x0F	; 15
+     8ea:	99 0f       	add	r25, r25
+     8ec:	29 2f       	mov	r18, r25
+     8ee:	22 0f       	add	r18, r18
+     8f0:	22 0f       	add	r18, r18
+     8f2:	92 0f       	add	r25, r18
+     8f4:	8f 70       	andi	r24, 0x0F	; 15
+}
+     8f6:	89 0f       	add	r24, r25
+     8f8:	08 95       	ret
+
+000008fa <rtc_read_byte>:
+
+uint8_t rtc_read_byte(uint8_t offset)
+{
+     8fa:	cf 93       	push	r28
+     8fc:	c8 2f       	mov	r28, r24
+	twi_begin_transmission(RTC_ADDR);
+     8fe:	88 e6       	ldi	r24, 0x68	; 104
+     900:	0e 94 90 07 	call	0xf20	; 0xf20 <twi_begin_transmission>
+	twi_send_byte(offset);
+     904:	8c 2f       	mov	r24, r28
+     906:	0e 94 aa 07 	call	0xf54	; 0xf54 <twi_send_byte>
+	twi_end_transmission();
+     90a:	0e 94 9a 07 	call	0xf34	; 0xf34 <twi_end_transmission>
+
+	twi_request_from(RTC_ADDR, 1);
+     90e:	61 e0       	ldi	r22, 0x01	; 1
+     910:	88 e6       	ldi	r24, 0x68	; 104
+     912:	0e 94 83 07 	call	0xf06	; 0xf06 <twi_request_from>
+	return twi_receive();
+     916:	0e 94 d5 07 	call	0xfaa	; 0xfaa <twi_receive>
+}
+     91a:	cf 91       	pop	r28
+     91c:	08 95       	ret
+
+0000091e <rtc_write_byte>:
+
+void rtc_write_byte(uint8_t b, uint8_t offset)
+{
+     91e:	cf 93       	push	r28
+     920:	df 93       	push	r29
+     922:	c8 2f       	mov	r28, r24
+     924:	d6 2f       	mov	r29, r22
+	twi_begin_transmission(RTC_ADDR);
+     926:	88 e6       	ldi	r24, 0x68	; 104
+     928:	0e 94 90 07 	call	0xf20	; 0xf20 <twi_begin_transmission>
+	twi_send_byte(offset);
+     92c:	8d 2f       	mov	r24, r29
+     92e:	0e 94 aa 07 	call	0xf54	; 0xf54 <twi_send_byte>
+	twi_send_byte(b);
+     932:	8c 2f       	mov	r24, r28
+     934:	0e 94 aa 07 	call	0xf54	; 0xf54 <twi_send_byte>
+	twi_end_transmission();
+     938:	0e 94 9a 07 	call	0xf34	; 0xf34 <twi_end_transmission>
+}
+     93c:	df 91       	pop	r29
+     93e:	cf 91       	pop	r28
+     940:	08 95       	ret
+
+00000942 <rtc_init>:
+
+static bool s_is_ds1307 = false;
+static bool s_is_ds3231 = false;
+
+void rtc_init(void)
+{
+     942:	cf 93       	push	r28
+     944:	df 93       	push	r29
+	// 2) Write a value to temperature register
+	// 3) Read back the value
+	//   equal to the one written: DS1307, write back saved value and return
+	//   different from written:   DS3231
+	
+	uint8_t temp1 = rtc_read_byte(0x11);
+     946:	81 e1       	ldi	r24, 0x11	; 17
+     948:	0e 94 7d 04 	call	0x8fa	; 0x8fa <rtc_read_byte>
+     94c:	d8 2f       	mov	r29, r24
+	uint8_t temp2 = rtc_read_byte(0x12);
+     94e:	82 e1       	ldi	r24, 0x12	; 18
+     950:	0e 94 7d 04 	call	0x8fa	; 0x8fa <rtc_read_byte>
+     954:	c8 2f       	mov	r28, r24
+	
+	rtc_write_byte(0xee, 0x11);
+     956:	61 e1       	ldi	r22, 0x11	; 17
+     958:	8e ee       	ldi	r24, 0xEE	; 238
+     95a:	0e 94 8f 04 	call	0x91e	; 0x91e <rtc_write_byte>
+	rtc_write_byte(0xdd, 0x12);
+     95e:	62 e1       	ldi	r22, 0x12	; 18
+     960:	8d ed       	ldi	r24, 0xDD	; 221
+     962:	0e 94 8f 04 	call	0x91e	; 0x91e <rtc_write_byte>
+
+	if (rtc_read_byte(0x11) == 0xee && rtc_read_byte(0x12) == 0xdd) {
+     966:	81 e1       	ldi	r24, 0x11	; 17
+     968:	0e 94 7d 04 	call	0x8fa	; 0x8fa <rtc_read_byte>
+     96c:	8e 3e       	cpi	r24, 0xEE	; 238
+     96e:	89 f4       	brne	.+34     	; 0x992 <rtc_init+0x50>
+     970:	82 e1       	ldi	r24, 0x12	; 18
+     972:	0e 94 7d 04 	call	0x8fa	; 0x8fa <rtc_read_byte>
+     976:	8d 3d       	cpi	r24, 0xDD	; 221
+     978:	61 f4       	brne	.+24     	; 0x992 <rtc_init+0x50>
+		s_is_ds1307 = true;
+     97a:	81 e0       	ldi	r24, 0x01	; 1
+     97c:	80 93 1a 01 	sts	0x011A, r24
+		// restore values
+		rtc_write_byte(temp1, 0x11);
+     980:	61 e1       	ldi	r22, 0x11	; 17
+     982:	8d 2f       	mov	r24, r29
+     984:	0e 94 8f 04 	call	0x91e	; 0x91e <rtc_write_byte>
+		rtc_write_byte(temp2, 0x12);
+     988:	62 e1       	ldi	r22, 0x12	; 18
+     98a:	8c 2f       	mov	r24, r28
+     98c:	0e 94 8f 04 	call	0x91e	; 0x91e <rtc_write_byte>
+     990:	03 c0       	rjmp	.+6      	; 0x998 <rtc_init+0x56>
+	}
+	else {
+		s_is_ds3231 = true;
+     992:	81 e0       	ldi	r24, 0x01	; 1
+     994:	80 93 1b 01 	sts	0x011B, r24
+	}
+}
+     998:	df 91       	pop	r29
+     99a:	cf 91       	pop	r28
+     99c:	08 95       	ret
+
+0000099e <rtc_get_time>:
+// Autodetection override
+void rtc_set_ds1307(void) { s_is_ds1307 = true;   s_is_ds3231 = false; }
+void rtc_set_ds3231(void) { s_is_ds1307 = false;  s_is_ds3231 = true;  }
+
+struct tm* rtc_get_time(void)
+{
+     99e:	ef 92       	push	r14
+     9a0:	ff 92       	push	r15
+     9a2:	0f 93       	push	r16
+     9a4:	1f 93       	push	r17
+     9a6:	cf 93       	push	r28
+     9a8:	df 93       	push	r29
+     9aa:	cd b7       	in	r28, 0x3d	; 61
+     9ac:	de b7       	in	r29, 0x3e	; 62
+     9ae:	29 97       	sbiw	r28, 0x09	; 9
+     9b0:	0f b6       	in	r0, 0x3f	; 63
+     9b2:	f8 94       	cli
+     9b4:	de bf       	out	0x3e, r29	; 62
+     9b6:	0f be       	out	0x3f, r0	; 63
+     9b8:	cd bf       	out	0x3d, r28	; 61
+	uint8_t rtc[9];
+	uint8_t century = 0;
+
+	// read 7 bytes starting from register 0
+	// sec, min, hour, day-of-week, date, month, year
+	twi_begin_transmission(RTC_ADDR);
+     9ba:	88 e6       	ldi	r24, 0x68	; 104
+     9bc:	0e 94 90 07 	call	0xf20	; 0xf20 <twi_begin_transmission>
+	twi_send_byte(0x0);
+     9c0:	80 e0       	ldi	r24, 0x00	; 0
+     9c2:	0e 94 aa 07 	call	0xf54	; 0xf54 <twi_send_byte>
+	twi_end_transmission();
+     9c6:	0e 94 9a 07 	call	0xf34	; 0xf34 <twi_end_transmission>
+
+	twi_request_from(RTC_ADDR, 7);
+     9ca:	67 e0       	ldi	r22, 0x07	; 7
+     9cc:	88 e6       	ldi	r24, 0x68	; 104
+     9ce:	0e 94 83 07 	call	0xf06	; 0xf06 <twi_request_from>
+     9d2:	8e 01       	movw	r16, r28
+     9d4:	0f 5f       	subi	r16, 0xFF	; 255
+     9d6:	1f 4f       	sbci	r17, 0xFF	; 255
+
+// Autodetection override
+void rtc_set_ds1307(void) { s_is_ds1307 = true;   s_is_ds3231 = false; }
+void rtc_set_ds3231(void) { s_is_ds1307 = false;  s_is_ds3231 = true;  }
+
+struct tm* rtc_get_time(void)
+     9d8:	7e 01       	movw	r14, r28
+     9da:	88 e0       	ldi	r24, 0x08	; 8
+     9dc:	e8 0e       	add	r14, r24
+     9de:	f1 1c       	adc	r15, r1
+	twi_end_transmission();
+
+	twi_request_from(RTC_ADDR, 7);
+
+	for (uint8_t i = 0; i < 7; i++) {
+		rtc[i] = twi_receive();
+     9e0:	0e 94 d5 07 	call	0xfaa	; 0xfaa <twi_receive>
+     9e4:	f8 01       	movw	r30, r16
+     9e6:	81 93       	st	Z+, r24
+     9e8:	8f 01       	movw	r16, r30
+	twi_send_byte(0x0);
+	twi_end_transmission();
+
+	twi_request_from(RTC_ADDR, 7);
+
+	for (uint8_t i = 0; i < 7; i++) {
+     9ea:	ee 15       	cp	r30, r14
+     9ec:	ff 05       	cpc	r31, r15
+     9ee:	c1 f7       	brne	.-16     	; 0x9e0 <rtc_get_time+0x42>
+		rtc[i] = twi_receive();
+	}
+
+	twi_end_transmission();
+     9f0:	0e 94 9a 07 	call	0xf34	; 0xf34 <twi_end_transmission>
+
+	// Clear clock halt bit from read data
+	// This starts the clock for a DS1307, and has no effect for a DS3231
+	rtc[0] &= ~(_BV(CH_BIT)); // clear bit
+     9f4:	89 81       	ldd	r24, Y+1	; 0x01
+
+	_tm.sec = bcd2dec(rtc[0]);
+     9f6:	8f 77       	andi	r24, 0x7F	; 127
+     9f8:	0e 94 72 04 	call	0x8e4	; 0x8e4 <bcd2dec>
+     9fc:	ee e8       	ldi	r30, 0x8E	; 142
+     9fe:	f1 e0       	ldi	r31, 0x01	; 1
+     a00:	80 83       	st	Z, r24
+     a02:	11 82       	std	Z+1, r1	; 0x01
+	_tm.min = bcd2dec(rtc[1]);
+     a04:	8a 81       	ldd	r24, Y+2	; 0x02
+     a06:	0e 94 72 04 	call	0x8e4	; 0x8e4 <bcd2dec>
+     a0a:	e0 e9       	ldi	r30, 0x90	; 144
+     a0c:	f1 e0       	ldi	r31, 0x01	; 1
+     a0e:	80 83       	st	Z, r24
+     a10:	11 82       	std	Z+1, r1	; 0x01
+	_tm.hour = bcd2dec(rtc[2]);
+     a12:	8b 81       	ldd	r24, Y+3	; 0x03
+     a14:	0e 94 72 04 	call	0x8e4	; 0x8e4 <bcd2dec>
+     a18:	08 2f       	mov	r16, r24
+     a1a:	10 e0       	ldi	r17, 0x00	; 0
+     a1c:	10 93 93 01 	sts	0x0193, r17
+     a20:	00 93 92 01 	sts	0x0192, r16
+	_tm.mday = bcd2dec(rtc[4]);
+     a24:	8d 81       	ldd	r24, Y+5	; 0x05
+     a26:	0e 94 72 04 	call	0x8e4	; 0x8e4 <bcd2dec>
+     a2a:	e4 e9       	ldi	r30, 0x94	; 148
+     a2c:	f1 e0       	ldi	r31, 0x01	; 1
+     a2e:	80 83       	st	Z, r24
+     a30:	11 82       	std	Z+1, r1	; 0x01
+	_tm.mon = bcd2dec(rtc[5] & 0x1F); // returns 1-12
+     a32:	fe 80       	ldd	r15, Y+6	; 0x06
+     a34:	8f 2d       	mov	r24, r15
+     a36:	8f 71       	andi	r24, 0x1F	; 31
+     a38:	0e 94 72 04 	call	0x8e4	; 0x8e4 <bcd2dec>
+     a3c:	e6 e9       	ldi	r30, 0x96	; 150
+     a3e:	f1 e0       	ldi	r31, 0x01	; 1
+     a40:	80 83       	st	Z, r24
+     a42:	11 82       	std	Z+1, r1	; 0x01
+	century = (rtc[5] & 0x80) >> 7;
+	_tm.year = century == 1 ? 2000 + bcd2dec(rtc[6]) : 1900 + bcd2dec(rtc[6]); // year 0-99
+     a44:	ff 20       	and	r15, r15
+     a46:	3c f4       	brge	.+14     	; 0xa56 <rtc_get_time+0xb8>
+     a48:	8f 81       	ldd	r24, Y+7	; 0x07
+     a4a:	0e 94 72 04 	call	0x8e4	; 0x8e4 <bcd2dec>
+     a4e:	90 e0       	ldi	r25, 0x00	; 0
+     a50:	80 53       	subi	r24, 0x30	; 48
+     a52:	98 4f       	sbci	r25, 0xF8	; 248
+     a54:	06 c0       	rjmp	.+12     	; 0xa62 <rtc_get_time+0xc4>
+     a56:	8f 81       	ldd	r24, Y+7	; 0x07
+     a58:	0e 94 72 04 	call	0x8e4	; 0x8e4 <bcd2dec>
+     a5c:	90 e0       	ldi	r25, 0x00	; 0
+     a5e:	84 59       	subi	r24, 0x94	; 148
+     a60:	98 4f       	sbci	r25, 0xF8	; 248
+     a62:	90 93 99 01 	sts	0x0199, r25
+     a66:	80 93 98 01 	sts	0x0198, r24
+	_tm.wday = bcd2dec(rtc[3]); // returns 1-7
+     a6a:	8c 81       	ldd	r24, Y+4	; 0x04
+     a6c:	0e 94 72 04 	call	0x8e4	; 0x8e4 <bcd2dec>
+     a70:	ea e9       	ldi	r30, 0x9A	; 154
+     a72:	f1 e0       	ldi	r31, 0x01	; 1
+     a74:	80 83       	st	Z, r24
+     a76:	11 82       	std	Z+1, r1	; 0x01
+
+	if (_tm.hour == 0) {
+     a78:	01 15       	cp	r16, r1
+     a7a:	11 05       	cpc	r17, r1
+     a7c:	41 f4       	brne	.+16     	; 0xa8e <rtc_get_time+0xf0>
+		_tm.twelveHour = 0;
+     a7e:	10 92 9e 01 	sts	0x019E, r1
+     a82:	10 92 9d 01 	sts	0x019D, r1
+		_tm.am = 1;
+     a86:	81 e0       	ldi	r24, 0x01	; 1
+     a88:	80 93 9c 01 	sts	0x019C, r24
+     a8c:	13 c0       	rjmp	.+38     	; 0xab4 <rtc_get_time+0x116>
+	} else if (_tm.hour < 12) {
+     a8e:	0c 30       	cpi	r16, 0x0C	; 12
+     a90:	11 05       	cpc	r17, r1
+     a92:	44 f4       	brge	.+16     	; 0xaa4 <rtc_get_time+0x106>
+		_tm.twelveHour = _tm.hour;
+     a94:	10 93 9e 01 	sts	0x019E, r17
+     a98:	00 93 9d 01 	sts	0x019D, r16
+		_tm.am = 1;
+     a9c:	81 e0       	ldi	r24, 0x01	; 1
+     a9e:	80 93 9c 01 	sts	0x019C, r24
+     aa2:	08 c0       	rjmp	.+16     	; 0xab4 <rtc_get_time+0x116>
+	} else {
+		_tm.twelveHour = _tm.hour - 12;
+     aa4:	0c 50       	subi	r16, 0x0C	; 12
+     aa6:	11 09       	sbc	r17, r1
+     aa8:	10 93 9e 01 	sts	0x019E, r17
+     aac:	00 93 9d 01 	sts	0x019D, r16
+		_tm.am = 0;
+     ab0:	10 92 9c 01 	sts	0x019C, r1
+	}
+
+	return &_tm;
+}
+     ab4:	8e e8       	ldi	r24, 0x8E	; 142
+     ab6:	91 e0       	ldi	r25, 0x01	; 1
+     ab8:	29 96       	adiw	r28, 0x09	; 9
+     aba:	0f b6       	in	r0, 0x3f	; 63
+     abc:	f8 94       	cli
+     abe:	de bf       	out	0x3e, r29	; 62
+     ac0:	0f be       	out	0x3f, r0	; 63
+     ac2:	cd bf       	out	0x3d, r28	; 61
+     ac4:	df 91       	pop	r29
+     ac6:	cf 91       	pop	r28
+     ac8:	1f 91       	pop	r17
+     aca:	0f 91       	pop	r16
+     acc:	ff 90       	pop	r15
+     ace:	ef 90       	pop	r14
+     ad0:	08 95       	ret
+
+00000ad2 <ds3231_get_temp_int>:
+  if (b & _BV(CH_BIT)) return false;
+  return true;
+}
+
+void ds3231_get_temp_int(int8_t* i, uint8_t* f)
+{
+     ad2:	ff 92       	push	r15
+     ad4:	0f 93       	push	r16
+     ad6:	1f 93       	push	r17
+     ad8:	cf 93       	push	r28
+     ada:	df 93       	push	r29
+     adc:	8c 01       	movw	r16, r24
+     ade:	eb 01       	movw	r28, r22
+	uint8_t msb, lsb;
+	
+	*i = 0;
+     ae0:	fc 01       	movw	r30, r24
+     ae2:	10 82       	st	Z, r1
+	*f = 0;
+     ae4:	18 82       	st	Y, r1
+	
+	if (s_is_ds1307) return; // only valid on DS3231
+     ae6:	80 91 1a 01 	lds	r24, 0x011A
+     aea:	81 11       	cpse	r24, r1
+     aec:	20 c0       	rjmp	.+64     	; 0xb2e <ds3231_get_temp_int+0x5c>
+
+	twi_begin_transmission(RTC_ADDR);
+     aee:	88 e6       	ldi	r24, 0x68	; 104
+     af0:	0e 94 90 07 	call	0xf20	; 0xf20 <twi_begin_transmission>
+	// temp registers 0x11 and 0x12
+	twi_send_byte(0x11);
+     af4:	81 e1       	ldi	r24, 0x11	; 17
+     af6:	0e 94 aa 07 	call	0xf54	; 0xf54 <twi_send_byte>
+	twi_end_transmission();
+     afa:	0e 94 9a 07 	call	0xf34	; 0xf34 <twi_end_transmission>
+
+	twi_request_from(RTC_ADDR, 2);
+     afe:	62 e0       	ldi	r22, 0x02	; 2
+     b00:	88 e6       	ldi	r24, 0x68	; 104
+     b02:	0e 94 83 07 	call	0xf06	; 0xf06 <twi_request_from>
+
+	if (twi_available()) {
+     b06:	0e 94 cf 07 	call	0xf9e	; 0xf9e <twi_available>
+     b0a:	88 23       	and	r24, r24
+     b0c:	81 f0       	breq	.+32     	; 0xb2e <ds3231_get_temp_int+0x5c>
+		msb = twi_receive(); // integer part (in twos complement)
+     b0e:	0e 94 d5 07 	call	0xfaa	; 0xfaa <twi_receive>
+     b12:	f8 2e       	mov	r15, r24
+		lsb = twi_receive(); // fraction part
+     b14:	0e 94 d5 07 	call	0xfaa	; 0xfaa <twi_receive>
+    	
+		// integer part in entire byte
+		*i = msb;
+     b18:	f8 01       	movw	r30, r16
+     b1a:	f0 82       	st	Z, r15
+		// fractional part in top two bits (increments of 0.25)
+		*f = (lsb >> 6) * 25;
+     b1c:	82 95       	swap	r24
+     b1e:	86 95       	lsr	r24
+     b20:	86 95       	lsr	r24
+     b22:	83 70       	andi	r24, 0x03	; 3
+     b24:	99 e1       	ldi	r25, 0x19	; 25
+     b26:	89 9f       	mul	r24, r25
+     b28:	80 2d       	mov	r24, r0
+     b2a:	11 24       	eor	r1, r1
+     b2c:	88 83       	st	Y, r24
+
+		// float value can be read like so:
+		// float temp = ((((short)msb << 8) | (short)lsb) >> 6) / 4.0f;
+	}
+}
+     b2e:	df 91       	pop	r29
+     b30:	cf 91       	pop	r28
+     b32:	1f 91       	pop	r17
+     b34:	0f 91       	pop	r16
+     b36:	ff 90       	pop	r15
+     b38:	08 95       	ret
+
+00000b3a <twi_init>:
+ * Output   none
+ */
+void twi_init(void)
+{
+  // initialize state
+  twi_state = TWI_READY;
+     b3a:	10 92 21 01 	sts	0x0121, r1
+
+  #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega8__) || defined(__AVR_ATmega328P__)
+    // activate internal pull-ups for twi
+    // as per note from atmega8 manual pg167
+    sbi(PORTC, 4);
+     b3e:	44 9a       	sbi	0x08, 4	; 8
+    sbi(PORTC, 5);
+     b40:	45 9a       	sbi	0x08, 5	; 8
+    sbi(PORTD, 0);
+    sbi(PORTD, 1);
+  #endif
+
+  // initialize twi prescaler and bit rate
+  cbi(TWSR, TWPS0);
+     b42:	e9 eb       	ldi	r30, 0xB9	; 185
+     b44:	f0 e0       	ldi	r31, 0x00	; 0
+     b46:	80 81       	ld	r24, Z
+     b48:	8e 7f       	andi	r24, 0xFE	; 254
+     b4a:	80 83       	st	Z, r24
+  cbi(TWSR, TWPS1);
+     b4c:	80 81       	ld	r24, Z
+     b4e:	8d 7f       	andi	r24, 0xFD	; 253
+     b50:	80 83       	st	Z, r24
+  TWBR = ((CPU_FREQ / TWI_FREQ) - 16) / 2;
+     b52:	88 e4       	ldi	r24, 0x48	; 72
+     b54:	80 93 b8 00 	sts	0x00B8, r24
+  SCL Frequency = CPU Clock Frequency / (16 + (2 * TWBR))
+  note: TWBR should be 10 or higher for master mode
+  It is 72 for a 16mhz Wiring board with 100kHz TWI */
+
+  // enable twi module, acks, and twi interrupt
+  TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA);
+     b58:	85 e4       	ldi	r24, 0x45	; 69
+     b5a:	80 93 bc 00 	sts	0x00BC, r24
+     b5e:	08 95       	ret
+
+00000b60 <twi_readFrom>:
+uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length)
+{
+  uint8_t i;
+
+  // ensure data will fit into buffer
+  if(TWI_BUFFER_LENGTH < length){
+     b60:	41 32       	cpi	r20, 0x21	; 33
+     b62:	a8 f5       	brcc	.+106    	; 0xbce <twi_readFrom+0x6e>
+    return 0;
+  }
+
+  // wait until twi is ready, become master receiver
+  while(TWI_READY != twi_state){
+     b64:	90 91 21 01 	lds	r25, 0x0121
+     b68:	91 11       	cpse	r25, r1
+     b6a:	fc cf       	rjmp	.-8      	; 0xb64 <twi_readFrom+0x4>
+    continue;
+  }
+  twi_state = TWI_MRX;
+     b6c:	91 e0       	ldi	r25, 0x01	; 1
+     b6e:	90 93 21 01 	sts	0x0121, r25
+  // reset error state (0xFF.. no error occured)
+  twi_error = 0xFF;
+     b72:	9f ef       	ldi	r25, 0xFF	; 255
+     b74:	90 93 1c 01 	sts	0x011C, r25
+
+  // initialize buffer iteration vars
+  twi_masterBufferIndex = 0;
+     b78:	10 92 20 01 	sts	0x0120, r1
+  twi_masterBufferLength = length-1;  // This is not intuitive, read on...
+     b7c:	94 2f       	mov	r25, r20
+     b7e:	91 50       	subi	r25, 0x01	; 1
+     b80:	90 93 22 01 	sts	0x0122, r25
+  // received, causing that NACK to be sent in response to receiving the last
+  // expected byte of data.
+
+  // build sla+w, slave device address + w bit
+  twi_slarw = TW_READ;
+  twi_slarw |= address << 1;
+     b84:	28 2f       	mov	r18, r24
+     b86:	30 e0       	ldi	r19, 0x00	; 0
+     b88:	22 0f       	add	r18, r18
+     b8a:	33 1f       	adc	r19, r19
+     b8c:	21 60       	ori	r18, 0x01	; 1
+     b8e:	20 93 23 01 	sts	0x0123, r18
+
+  // send start condition
+  TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTA);
+     b92:	85 ee       	ldi	r24, 0xE5	; 229
+     b94:	80 93 bc 00 	sts	0x00BC, r24
+
+  // wait for read operation to complete
+  while(TWI_MRX == twi_state){
+     b98:	80 91 21 01 	lds	r24, 0x0121
+     b9c:	81 30       	cpi	r24, 0x01	; 1
+     b9e:	e1 f3       	breq	.-8      	; 0xb98 <twi_readFrom+0x38>
+    continue;
+  }
+
+  if (twi_masterBufferIndex < length)
+     ba0:	80 91 20 01 	lds	r24, 0x0120
+     ba4:	84 17       	cp	r24, r20
+     ba6:	10 f4       	brcc	.+4      	; 0xbac <twi_readFrom+0x4c>
+    length = twi_masterBufferIndex;
+     ba8:	40 91 20 01 	lds	r20, 0x0120
+
+  // copy twi buffer to data
+  for(i = 0; i < length; ++i){
+     bac:	44 23       	and	r20, r20
+     bae:	81 f0       	breq	.+32     	; 0xbd0 <twi_readFrom+0x70>
+     bb0:	e4 e2       	ldi	r30, 0x24	; 36
+     bb2:	f1 e0       	ldi	r31, 0x01	; 1
+     bb4:	a6 2f       	mov	r26, r22
+     bb6:	b7 2f       	mov	r27, r23
+ * Input    address: 7bit i2c device address
+ *          data: pointer to byte array
+ *          length: number of bytes to read into array
+ * Output   number of bytes read
+ */
+uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length)
+     bb8:	24 2f       	mov	r18, r20
+     bba:	21 50       	subi	r18, 0x01	; 1
+     bbc:	30 e0       	ldi	r19, 0x00	; 0
+     bbe:	2b 5d       	subi	r18, 0xDB	; 219
+     bc0:	3e 4f       	sbci	r19, 0xFE	; 254
+  if (twi_masterBufferIndex < length)
+    length = twi_masterBufferIndex;
+
+  // copy twi buffer to data
+  for(i = 0; i < length; ++i){
+    data[i] = twi_masterBuffer[i];
+     bc2:	91 91       	ld	r25, Z+
+     bc4:	9d 93       	st	X+, r25
+
+  if (twi_masterBufferIndex < length)
+    length = twi_masterBufferIndex;
+
+  // copy twi buffer to data
+  for(i = 0; i < length; ++i){
+     bc6:	e2 17       	cp	r30, r18
+     bc8:	f3 07       	cpc	r31, r19
+     bca:	d9 f7       	brne	.-10     	; 0xbc2 <twi_readFrom+0x62>
+     bcc:	01 c0       	rjmp	.+2      	; 0xbd0 <twi_readFrom+0x70>
+{
+  uint8_t i;
+
+  // ensure data will fit into buffer
+  if(TWI_BUFFER_LENGTH < length){
+    return 0;
+     bce:	40 e0       	ldi	r20, 0x00	; 0
+  for(i = 0; i < length; ++i){
+    data[i] = twi_masterBuffer[i];
+  }
+	
+  return length;
+}
+     bd0:	84 2f       	mov	r24, r20
+     bd2:	08 95       	ret
+
+00000bd4 <twi_writeTo>:
+ *          2 .. address send, NACK received
+ *          3 .. data send, NACK received
+ *          4 .. other twi error (lost bus arbitration, bus error, ..)
+ */
+uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait)
+{
+     bd4:	cf 93       	push	r28
+     bd6:	df 93       	push	r29
+  uint8_t i;
+
+  // ensure data will fit into buffer
+  if(TWI_BUFFER_LENGTH < length){
+     bd8:	41 32       	cpi	r20, 0x21	; 33
+     bda:	08 f0       	brcs	.+2      	; 0xbde <twi_writeTo+0xa>
+     bdc:	41 c0       	rjmp	.+130    	; 0xc60 <twi_writeTo+0x8c>
+    return 1;
+  }
+
+  // wait until twi is ready, become master transmitter
+  while(TWI_READY != twi_state){
+     bde:	90 91 21 01 	lds	r25, 0x0121
+     be2:	91 11       	cpse	r25, r1
+     be4:	fc cf       	rjmp	.-8      	; 0xbde <twi_writeTo+0xa>
+    continue;
+  }
+  twi_state = TWI_MTX;
+     be6:	92 e0       	ldi	r25, 0x02	; 2
+     be8:	90 93 21 01 	sts	0x0121, r25
+  // reset error state (0xFF.. no error occured)
+  twi_error = 0xFF;
+     bec:	9f ef       	ldi	r25, 0xFF	; 255
+     bee:	90 93 1c 01 	sts	0x011C, r25
+
+  // initialize buffer iteration vars
+  twi_masterBufferIndex = 0;
+     bf2:	10 92 20 01 	sts	0x0120, r1
+  twi_masterBufferLength = length;
+     bf6:	40 93 22 01 	sts	0x0122, r20
+  
+  // copy data to twi buffer
+  for(i = 0; i < length; ++i){
+     bfa:	44 23       	and	r20, r20
+     bfc:	89 f0       	breq	.+34     	; 0xc20 <twi_writeTo+0x4c>
+     bfe:	e6 2f       	mov	r30, r22
+     c00:	f7 2f       	mov	r31, r23
+     c02:	a4 e2       	ldi	r26, 0x24	; 36
+     c04:	b1 e0       	ldi	r27, 0x01	; 1
+ *          1 .. length to long for buffer
+ *          2 .. address send, NACK received
+ *          3 .. data send, NACK received
+ *          4 .. other twi error (lost bus arbitration, bus error, ..)
+ */
+uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait)
+     c06:	bf 01       	movw	r22, r30
+     c08:	6f 5f       	subi	r22, 0xFF	; 255
+     c0a:	7f 4f       	sbci	r23, 0xFF	; 255
+     c0c:	41 50       	subi	r20, 0x01	; 1
+     c0e:	eb 01       	movw	r28, r22
+     c10:	c4 0f       	add	r28, r20
+     c12:	d1 1d       	adc	r29, r1
+     c14:	ae 01       	movw	r20, r28
+  twi_masterBufferIndex = 0;
+  twi_masterBufferLength = length;
+  
+  // copy data to twi buffer
+  for(i = 0; i < length; ++i){
+    twi_masterBuffer[i] = data[i];
+     c16:	91 91       	ld	r25, Z+
+     c18:	9d 93       	st	X+, r25
+  // initialize buffer iteration vars
+  twi_masterBufferIndex = 0;
+  twi_masterBufferLength = length;
+  
+  // copy data to twi buffer
+  for(i = 0; i < length; ++i){
+     c1a:	e4 17       	cp	r30, r20
+     c1c:	f5 07       	cpc	r31, r21
+     c1e:	d9 f7       	brne	.-10     	; 0xc16 <twi_writeTo+0x42>
+    twi_masterBuffer[i] = data[i];
+  }
+  
+  // build sla+w, slave device address + w bit
+  twi_slarw = TW_WRITE;
+  twi_slarw |= address << 1;
+     c20:	90 e0       	ldi	r25, 0x00	; 0
+     c22:	88 0f       	add	r24, r24
+     c24:	99 1f       	adc	r25, r25
+     c26:	80 93 23 01 	sts	0x0123, r24
+  
+  // send start condition
+  TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTA);
+     c2a:	85 ee       	ldi	r24, 0xE5	; 229
+     c2c:	80 93 bc 00 	sts	0x00BC, r24
+
+  // wait for write operation to complete
+  while(wait && (TWI_MTX == twi_state)){
+     c30:	22 23       	and	r18, r18
+     c32:	41 f0       	breq	.+16     	; 0xc44 <twi_writeTo+0x70>
+     c34:	80 91 21 01 	lds	r24, 0x0121
+     c38:	82 30       	cpi	r24, 0x02	; 2
+     c3a:	21 f4       	brne	.+8      	; 0xc44 <twi_writeTo+0x70>
+     c3c:	80 91 21 01 	lds	r24, 0x0121
+     c40:	82 30       	cpi	r24, 0x02	; 2
+     c42:	e1 f3       	breq	.-8      	; 0xc3c <twi_writeTo+0x68>
+    continue;
+  }
+  
+  if (twi_error == 0xFF)
+     c44:	80 91 1c 01 	lds	r24, 0x011C
+     c48:	8f 3f       	cpi	r24, 0xFF	; 255
+     c4a:	61 f0       	breq	.+24     	; 0xc64 <twi_writeTo+0x90>
+    return 0;	// success
+  else if (twi_error == TW_MT_SLA_NACK)
+     c4c:	80 91 1c 01 	lds	r24, 0x011C
+     c50:	80 32       	cpi	r24, 0x20	; 32
+     c52:	51 f0       	breq	.+20     	; 0xc68 <twi_writeTo+0x94>
+    return 2;	// error: address send, nack received
+  else if (twi_error == TW_MT_DATA_NACK)
+     c54:	80 91 1c 01 	lds	r24, 0x011C
+     c58:	80 33       	cpi	r24, 0x30	; 48
+     c5a:	41 f4       	brne	.+16     	; 0xc6c <twi_writeTo+0x98>
+    return 3;	// error: data send, nack received
+     c5c:	83 e0       	ldi	r24, 0x03	; 3
+     c5e:	07 c0       	rjmp	.+14     	; 0xc6e <twi_writeTo+0x9a>
+{
+  uint8_t i;
+
+  // ensure data will fit into buffer
+  if(TWI_BUFFER_LENGTH < length){
+    return 1;
+     c60:	81 e0       	ldi	r24, 0x01	; 1
+     c62:	05 c0       	rjmp	.+10     	; 0xc6e <twi_writeTo+0x9a>
+  while(wait && (TWI_MTX == twi_state)){
+    continue;
+  }
+  
+  if (twi_error == 0xFF)
+    return 0;	// success
+     c64:	80 e0       	ldi	r24, 0x00	; 0
+     c66:	03 c0       	rjmp	.+6      	; 0xc6e <twi_writeTo+0x9a>
+  else if (twi_error == TW_MT_SLA_NACK)
+    return 2;	// error: address send, nack received
+     c68:	82 e0       	ldi	r24, 0x02	; 2
+     c6a:	01 c0       	rjmp	.+2      	; 0xc6e <twi_writeTo+0x9a>
+  else if (twi_error == TW_MT_DATA_NACK)
+    return 3;	// error: data send, nack received
+  else
+    return 4;	// other twi error
+     c6c:	84 e0       	ldi	r24, 0x04	; 4
+}
+     c6e:	df 91       	pop	r29
+     c70:	cf 91       	pop	r28
+     c72:	08 95       	ret
+
+00000c74 <twi_transmit>:
+uint8_t twi_transmit(uint8_t* data, uint8_t length)
+{
+  uint8_t i;
+
+  // ensure data will fit into buffer
+  if(TWI_BUFFER_LENGTH < length){
+     c74:	61 32       	cpi	r22, 0x21	; 33
+     c76:	c0 f4       	brcc	.+48     	; 0xca8 <twi_transmit+0x34>
+    return 1;
+  }
+  
+  // ensure we are currently a slave transmitter
+  if(TWI_STX != twi_state){
+     c78:	20 91 21 01 	lds	r18, 0x0121
+     c7c:	24 30       	cpi	r18, 0x04	; 4
+     c7e:	b1 f4       	brne	.+44     	; 0xcac <twi_transmit+0x38>
+    return 2;
+  }
+  
+  // set length and copy data into tx buffer
+  twi_txBufferLength = length;
+     c80:	60 93 1e 01 	sts	0x011E, r22
+  for(i = 0; i < length; ++i){
+     c84:	66 23       	and	r22, r22
+     c86:	a1 f0       	breq	.+40     	; 0xcb0 <twi_transmit+0x3c>
+     c88:	e8 2f       	mov	r30, r24
+     c8a:	f9 2f       	mov	r31, r25
+     c8c:	a4 e4       	ldi	r26, 0x44	; 68
+     c8e:	b1 e0       	ldi	r27, 0x01	; 1
+ *          length: number of bytes in array
+ * Output   1 length too long for buffer
+ *          2 not slave transmitter
+ *          0 ok
+ */
+uint8_t twi_transmit(uint8_t* data, uint8_t length)
+     c90:	cf 01       	movw	r24, r30
+     c92:	01 96       	adiw	r24, 0x01	; 1
+     c94:	61 50       	subi	r22, 0x01	; 1
+     c96:	86 0f       	add	r24, r22
+     c98:	91 1d       	adc	r25, r1
+  }
+  
+  // set length and copy data into tx buffer
+  twi_txBufferLength = length;
+  for(i = 0; i < length; ++i){
+    twi_txBuffer[i] = data[i];
+     c9a:	21 91       	ld	r18, Z+
+     c9c:	2d 93       	st	X+, r18
+    return 2;
+  }
+  
+  // set length and copy data into tx buffer
+  twi_txBufferLength = length;
+  for(i = 0; i < length; ++i){
+     c9e:	e8 17       	cp	r30, r24
+     ca0:	f9 07       	cpc	r31, r25
+     ca2:	d9 f7       	brne	.-10     	; 0xc9a <twi_transmit+0x26>
+    twi_txBuffer[i] = data[i];
+  }
+  
+  return 0;
+     ca4:	80 e0       	ldi	r24, 0x00	; 0
+     ca6:	08 95       	ret
+{
+  uint8_t i;
+
+  // ensure data will fit into buffer
+  if(TWI_BUFFER_LENGTH < length){
+    return 1;
+     ca8:	81 e0       	ldi	r24, 0x01	; 1
+     caa:	08 95       	ret
+  }
+  
+  // ensure we are currently a slave transmitter
+  if(TWI_STX != twi_state){
+    return 2;
+     cac:	82 e0       	ldi	r24, 0x02	; 2
+     cae:	08 95       	ret
+  twi_txBufferLength = length;
+  for(i = 0; i < length; ++i){
+    twi_txBuffer[i] = data[i];
+  }
+  
+  return 0;
+     cb0:	80 e0       	ldi	r24, 0x00	; 0
+}
+     cb2:	08 95       	ret
+
+00000cb4 <twi_reply>:
+ * Output   none
+ */
+void twi_reply(uint8_t ack)
+{
+  // transmit master read ready signal, with or without ack
+  if(ack){
+     cb4:	88 23       	and	r24, r24
+     cb6:	21 f0       	breq	.+8      	; 0xcc0 <twi_reply+0xc>
+    TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWINT) | _BV(TWEA);
+     cb8:	85 ec       	ldi	r24, 0xC5	; 197
+     cba:	80 93 bc 00 	sts	0x00BC, r24
+     cbe:	08 95       	ret
+  }else{
+	  TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWINT);
+     cc0:	85 e8       	ldi	r24, 0x85	; 133
+     cc2:	80 93 bc 00 	sts	0x00BC, r24
+     cc6:	08 95       	ret
+
+00000cc8 <twi_stop>:
+ * Output   none
+ */
+void twi_stop(void)
+{
+  // send stop condition
+  TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTO);
+     cc8:	85 ed       	ldi	r24, 0xD5	; 213
+     cca:	80 93 bc 00 	sts	0x00BC, r24
+
+  // wait for stop condition to be exectued on bus
+  // TWINT is not set after a stop condition!
+  while(TWCR & _BV(TWSTO)){
+     cce:	ec eb       	ldi	r30, 0xBC	; 188
+     cd0:	f0 e0       	ldi	r31, 0x00	; 0
+     cd2:	80 81       	ld	r24, Z
+     cd4:	84 fd       	sbrc	r24, 4
+     cd6:	fd cf       	rjmp	.-6      	; 0xcd2 <twi_stop+0xa>
+    continue;
+  }
+
+  // update twi state
+  twi_state = TWI_READY;
+     cd8:	10 92 21 01 	sts	0x0121, r1
+     cdc:	08 95       	ret
+
+00000cde <twi_releaseBus>:
+ * Output   none
+ */
+void twi_releaseBus(void)
+{
+  // release bus
+  TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT);
+     cde:	85 ec       	ldi	r24, 0xC5	; 197
+     ce0:	80 93 bc 00 	sts	0x00BC, r24
+
+  // update twi state
+  twi_state = TWI_READY;
+     ce4:	10 92 21 01 	sts	0x0121, r1
+     ce8:	08 95       	ret
+
+00000cea <__vector_24>:
+}
+
+SIGNAL(TWI_vect)
+{
+     cea:	1f 92       	push	r1
+     cec:	0f 92       	push	r0
+     cee:	0f b6       	in	r0, 0x3f	; 63
+     cf0:	0f 92       	push	r0
+     cf2:	11 24       	eor	r1, r1
+     cf4:	2f 93       	push	r18
+     cf6:	3f 93       	push	r19
+     cf8:	4f 93       	push	r20
+     cfa:	5f 93       	push	r21
+     cfc:	6f 93       	push	r22
+     cfe:	7f 93       	push	r23
+     d00:	8f 93       	push	r24
+     d02:	9f 93       	push	r25
+     d04:	af 93       	push	r26
+     d06:	bf 93       	push	r27
+     d08:	ef 93       	push	r30
+     d0a:	ff 93       	push	r31
+  switch(TW_STATUS){
+     d0c:	e0 91 b9 00 	lds	r30, 0x00B9
+     d10:	e8 7f       	andi	r30, 0xF8	; 248
+     d12:	f0 e0       	ldi	r31, 0x00	; 0
+     d14:	e9 3c       	cpi	r30, 0xC9	; 201
+     d16:	f1 05       	cpc	r31, r1
+     d18:	08 f0       	brcs	.+2      	; 0xd1c <__vector_24+0x32>
+     d1a:	d9 c0       	rjmp	.+434    	; 0xece <__vector_24+0x1e4>
+     d1c:	ec 5c       	subi	r30, 0xCC	; 204
+     d1e:	ff 4f       	sbci	r31, 0xFF	; 255
+     d20:	0c 94 fa 07 	jmp	0xff4	; 0xff4 <__tablejump2__>
+    // All Master
+    case TW_START:     // sent start condition
+    case TW_REP_START: // sent repeated start condition
+      // copy device address and r/w bit to output register and ack
+      TWDR = twi_slarw;
+     d24:	80 91 23 01 	lds	r24, 0x0123
+     d28:	80 93 bb 00 	sts	0x00BB, r24
+      twi_reply(1);
+     d2c:	81 e0       	ldi	r24, 0x01	; 1
+     d2e:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+      break;
+     d32:	cd c0       	rjmp	.+410    	; 0xece <__vector_24+0x1e4>
+
+    // Master Transmitter
+    case TW_MT_SLA_ACK:  // slave receiver acked address
+    case TW_MT_DATA_ACK: // slave receiver acked data
+      // if there is data to send, send it, otherwise stop 
+      if(twi_masterBufferIndex < twi_masterBufferLength){
+     d34:	90 91 20 01 	lds	r25, 0x0120
+     d38:	80 91 22 01 	lds	r24, 0x0122
+     d3c:	98 17       	cp	r25, r24
+     d3e:	80 f4       	brcc	.+32     	; 0xd60 <__vector_24+0x76>
+        // copy data to output register and ack
+        TWDR = twi_masterBuffer[twi_masterBufferIndex++];
+     d40:	80 91 20 01 	lds	r24, 0x0120
+     d44:	e8 2f       	mov	r30, r24
+     d46:	f0 e0       	ldi	r31, 0x00	; 0
+     d48:	ec 5d       	subi	r30, 0xDC	; 220
+     d4a:	fe 4f       	sbci	r31, 0xFE	; 254
+     d4c:	90 81       	ld	r25, Z
+     d4e:	90 93 bb 00 	sts	0x00BB, r25
+     d52:	8f 5f       	subi	r24, 0xFF	; 255
+     d54:	80 93 20 01 	sts	0x0120, r24
+        twi_reply(1);
+     d58:	81 e0       	ldi	r24, 0x01	; 1
+     d5a:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+     d5e:	b7 c0       	rjmp	.+366    	; 0xece <__vector_24+0x1e4>
+      }else{
+        twi_stop();
+     d60:	0e 94 64 06 	call	0xcc8	; 0xcc8 <twi_stop>
+     d64:	b4 c0       	rjmp	.+360    	; 0xece <__vector_24+0x1e4>
+      }
+      break;
+    case TW_MT_SLA_NACK:  // address sent, nack received
+      twi_error = TW_MT_SLA_NACK;
+     d66:	80 e2       	ldi	r24, 0x20	; 32
+     d68:	80 93 1c 01 	sts	0x011C, r24
+      twi_stop();
+     d6c:	0e 94 64 06 	call	0xcc8	; 0xcc8 <twi_stop>
+      break;
+     d70:	ae c0       	rjmp	.+348    	; 0xece <__vector_24+0x1e4>
+    case TW_MT_DATA_NACK: // data sent, nack received
+      twi_error = TW_MT_DATA_NACK;
+     d72:	80 e3       	ldi	r24, 0x30	; 48
+     d74:	80 93 1c 01 	sts	0x011C, r24
+      twi_stop();
+     d78:	0e 94 64 06 	call	0xcc8	; 0xcc8 <twi_stop>
+      break;
+     d7c:	a8 c0       	rjmp	.+336    	; 0xece <__vector_24+0x1e4>
+    case TW_MT_ARB_LOST: // lost bus arbitration
+      twi_error = TW_MT_ARB_LOST;
+     d7e:	88 e3       	ldi	r24, 0x38	; 56
+     d80:	80 93 1c 01 	sts	0x011C, r24
+      twi_releaseBus();
+     d84:	0e 94 6f 06 	call	0xcde	; 0xcde <twi_releaseBus>
+      break;
+     d88:	a2 c0       	rjmp	.+324    	; 0xece <__vector_24+0x1e4>
+
+    // Master Receiver
+    case TW_MR_DATA_ACK: // data received, ack sent
+      // put byte into buffer
+      twi_masterBuffer[twi_masterBufferIndex++] = TWDR;
+     d8a:	80 91 20 01 	lds	r24, 0x0120
+     d8e:	90 91 bb 00 	lds	r25, 0x00BB
+     d92:	e8 2f       	mov	r30, r24
+     d94:	f0 e0       	ldi	r31, 0x00	; 0
+     d96:	ec 5d       	subi	r30, 0xDC	; 220
+     d98:	fe 4f       	sbci	r31, 0xFE	; 254
+     d9a:	90 83       	st	Z, r25
+     d9c:	8f 5f       	subi	r24, 0xFF	; 255
+     d9e:	80 93 20 01 	sts	0x0120, r24
+    case TW_MR_SLA_ACK:  // address sent, ack received
+      // ack if more bytes are expected, otherwise nack
+      if(twi_masterBufferIndex < twi_masterBufferLength){
+     da2:	90 91 20 01 	lds	r25, 0x0120
+     da6:	80 91 22 01 	lds	r24, 0x0122
+     daa:	98 17       	cp	r25, r24
+     dac:	20 f4       	brcc	.+8      	; 0xdb6 <__vector_24+0xcc>
+        twi_reply(1);
+     dae:	81 e0       	ldi	r24, 0x01	; 1
+     db0:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+     db4:	8c c0       	rjmp	.+280    	; 0xece <__vector_24+0x1e4>
+      }else{
+        twi_reply(0);
+     db6:	80 e0       	ldi	r24, 0x00	; 0
+     db8:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+     dbc:	88 c0       	rjmp	.+272    	; 0xece <__vector_24+0x1e4>
+      }
+      break;
+    case TW_MR_DATA_NACK: // data received, nack sent
+      // put final byte into buffer
+      twi_masterBuffer[twi_masterBufferIndex++] = TWDR;
+     dbe:	80 91 20 01 	lds	r24, 0x0120
+     dc2:	90 91 bb 00 	lds	r25, 0x00BB
+     dc6:	e8 2f       	mov	r30, r24
+     dc8:	f0 e0       	ldi	r31, 0x00	; 0
+     dca:	ec 5d       	subi	r30, 0xDC	; 220
+     dcc:	fe 4f       	sbci	r31, 0xFE	; 254
+     dce:	90 83       	st	Z, r25
+     dd0:	8f 5f       	subi	r24, 0xFF	; 255
+     dd2:	80 93 20 01 	sts	0x0120, r24
+    case TW_MR_SLA_NACK: // address sent, nack received
+      twi_stop();
+     dd6:	0e 94 64 06 	call	0xcc8	; 0xcc8 <twi_stop>
+      break;
+     dda:	79 c0       	rjmp	.+242    	; 0xece <__vector_24+0x1e4>
+    case TW_SR_SLA_ACK:   // addressed, returned ack
+    case TW_SR_GCALL_ACK: // addressed generally, returned ack
+    case TW_SR_ARB_LOST_SLA_ACK:   // lost arbitration, returned ack
+    case TW_SR_ARB_LOST_GCALL_ACK: // lost arbitration, returned ack
+      // enter slave receiver mode
+      twi_state = TWI_SRX;
+     ddc:	83 e0       	ldi	r24, 0x03	; 3
+     dde:	80 93 21 01 	sts	0x0121, r24
+      // indicate that rx buffer can be overwritten and ack
+      twi_rxBufferIndex = 0;
+     de2:	10 92 1d 01 	sts	0x011D, r1
+      twi_reply(1);
+     de6:	81 e0       	ldi	r24, 0x01	; 1
+     de8:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+      break;
+     dec:	70 c0       	rjmp	.+224    	; 0xece <__vector_24+0x1e4>
+    case TW_SR_DATA_ACK:       // data received, returned ack
+    case TW_SR_GCALL_DATA_ACK: // data received generally, returned ack
+      // if there is still room in the rx buffer
+      if(twi_rxBufferIndex < TWI_BUFFER_LENGTH){
+     dee:	80 91 1d 01 	lds	r24, 0x011D
+     df2:	80 32       	cpi	r24, 0x20	; 32
+     df4:	80 f4       	brcc	.+32     	; 0xe16 <__vector_24+0x12c>
+        // put byte in buffer and ack
+        twi_rxBuffer[twi_rxBufferIndex++] = TWDR;
+     df6:	80 91 1d 01 	lds	r24, 0x011D
+     dfa:	90 91 bb 00 	lds	r25, 0x00BB
+     dfe:	e8 2f       	mov	r30, r24
+     e00:	f0 e0       	ldi	r31, 0x00	; 0
+     e02:	e8 59       	subi	r30, 0x98	; 152
+     e04:	fe 4f       	sbci	r31, 0xFE	; 254
+     e06:	90 83       	st	Z, r25
+     e08:	8f 5f       	subi	r24, 0xFF	; 255
+     e0a:	80 93 1d 01 	sts	0x011D, r24
+        twi_reply(1);
+     e0e:	81 e0       	ldi	r24, 0x01	; 1
+     e10:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+     e14:	5c c0       	rjmp	.+184    	; 0xece <__vector_24+0x1e4>
+      }else{
+        // otherwise nack
+        twi_reply(0);
+     e16:	80 e0       	ldi	r24, 0x00	; 0
+     e18:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+     e1c:	58 c0       	rjmp	.+176    	; 0xece <__vector_24+0x1e4>
+      }
+      break;
+    case TW_SR_STOP: // stop or repeated start condition received
+      // put a null char after data if there's room
+      if(twi_rxBufferIndex < TWI_BUFFER_LENGTH){
+     e1e:	80 91 1d 01 	lds	r24, 0x011D
+     e22:	80 32       	cpi	r24, 0x20	; 32
+     e24:	30 f4       	brcc	.+12     	; 0xe32 <__vector_24+0x148>
+        twi_rxBuffer[twi_rxBufferIndex] = '\0';
+     e26:	e0 91 1d 01 	lds	r30, 0x011D
+     e2a:	f0 e0       	ldi	r31, 0x00	; 0
+     e2c:	e8 59       	subi	r30, 0x98	; 152
+     e2e:	fe 4f       	sbci	r31, 0xFE	; 254
+     e30:	10 82       	st	Z, r1
+      }
+      // sends ack and stops interface for clock stretching
+      twi_stop();
+     e32:	0e 94 64 06 	call	0xcc8	; 0xcc8 <twi_stop>
+      // callback to user defined callback
+      twi_onSlaveReceive(twi_rxBuffer, twi_rxBufferIndex);
+     e36:	60 91 1d 01 	lds	r22, 0x011D
+     e3a:	e0 91 64 01 	lds	r30, 0x0164
+     e3e:	f0 91 65 01 	lds	r31, 0x0165
+     e42:	70 e0       	ldi	r23, 0x00	; 0
+     e44:	88 e6       	ldi	r24, 0x68	; 104
+     e46:	91 e0       	ldi	r25, 0x01	; 1
+     e48:	09 95       	icall
+      // since we submit rx buffer to "wire" library, we can reset it
+      twi_rxBufferIndex = 0;
+     e4a:	10 92 1d 01 	sts	0x011D, r1
+      // ack future responses and leave slave receiver state
+      twi_releaseBus();
+     e4e:	0e 94 6f 06 	call	0xcde	; 0xcde <twi_releaseBus>
+      break;
+     e52:	3d c0       	rjmp	.+122    	; 0xece <__vector_24+0x1e4>
+    case TW_SR_DATA_NACK:       // data received, returned nack
+    case TW_SR_GCALL_DATA_NACK: // data received generally, returned nack
+      // nack back at master
+      twi_reply(0);
+     e54:	80 e0       	ldi	r24, 0x00	; 0
+     e56:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+      break;
+     e5a:	39 c0       	rjmp	.+114    	; 0xece <__vector_24+0x1e4>
+    
+    // Slave Transmitter
+    case TW_ST_SLA_ACK:          // addressed, returned ack
+    case TW_ST_ARB_LOST_SLA_ACK: // arbitration lost, returned ack
+      // enter slave transmitter mode
+      twi_state = TWI_STX;
+     e5c:	84 e0       	ldi	r24, 0x04	; 4
+     e5e:	80 93 21 01 	sts	0x0121, r24
+      // ready the tx buffer index for iteration
+      twi_txBufferIndex = 0;
+     e62:	10 92 1f 01 	sts	0x011F, r1
+      // set tx buffer length to be zero, to verify if user changes it
+      twi_txBufferLength = 0;
+     e66:	10 92 1e 01 	sts	0x011E, r1
+      // request for txBuffer to be filled and length to be set
+      // note: user must call twi_transmit(bytes, length) to do this
+      twi_onSlaveTransmit();
+     e6a:	e0 91 66 01 	lds	r30, 0x0166
+     e6e:	f0 91 67 01 	lds	r31, 0x0167
+     e72:	09 95       	icall
+      // if they didn't change buffer & length, initialize it
+      if(0 == twi_txBufferLength){
+     e74:	80 91 1e 01 	lds	r24, 0x011E
+     e78:	81 11       	cpse	r24, r1
+     e7a:	05 c0       	rjmp	.+10     	; 0xe86 <__vector_24+0x19c>
+        twi_txBufferLength = 1;
+     e7c:	81 e0       	ldi	r24, 0x01	; 1
+     e7e:	80 93 1e 01 	sts	0x011E, r24
+        twi_txBuffer[0] = 0x00;
+     e82:	10 92 44 01 	sts	0x0144, r1
+      }
+      // transmit first byte from buffer, fall
+    case TW_ST_DATA_ACK: // byte sent, ack returned
+      // copy data to output register
+      TWDR = twi_txBuffer[twi_txBufferIndex++];
+     e86:	80 91 1f 01 	lds	r24, 0x011F
+     e8a:	e8 2f       	mov	r30, r24
+     e8c:	f0 e0       	ldi	r31, 0x00	; 0
+     e8e:	ec 5b       	subi	r30, 0xBC	; 188
+     e90:	fe 4f       	sbci	r31, 0xFE	; 254
+     e92:	90 81       	ld	r25, Z
+     e94:	90 93 bb 00 	sts	0x00BB, r25
+     e98:	8f 5f       	subi	r24, 0xFF	; 255
+     e9a:	80 93 1f 01 	sts	0x011F, r24
+      // if there is more to send, ack, otherwise nack
+      if(twi_txBufferIndex < twi_txBufferLength){
+     e9e:	90 91 1f 01 	lds	r25, 0x011F
+     ea2:	80 91 1e 01 	lds	r24, 0x011E
+     ea6:	98 17       	cp	r25, r24
+     ea8:	20 f4       	brcc	.+8      	; 0xeb2 <__vector_24+0x1c8>
+        twi_reply(1);
+     eaa:	81 e0       	ldi	r24, 0x01	; 1
+     eac:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+     eb0:	0e c0       	rjmp	.+28     	; 0xece <__vector_24+0x1e4>
+      }else{
+        twi_reply(0);
+     eb2:	80 e0       	ldi	r24, 0x00	; 0
+     eb4:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+     eb8:	0a c0       	rjmp	.+20     	; 0xece <__vector_24+0x1e4>
+      }
+      break;
+    case TW_ST_DATA_NACK: // received nack, we are done 
+    case TW_ST_LAST_DATA: // received ack, but we are done already!
+      // ack future responses
+      twi_reply(1);
+     eba:	81 e0       	ldi	r24, 0x01	; 1
+     ebc:	0e 94 5a 06 	call	0xcb4	; 0xcb4 <twi_reply>
+      // leave slave receiver state
+      twi_state = TWI_READY;
+     ec0:	10 92 21 01 	sts	0x0121, r1
+      break;
+     ec4:	04 c0       	rjmp	.+8      	; 0xece <__vector_24+0x1e4>
+
+    // All
+    case TW_NO_INFO:   // no state information
+      break;
+    case TW_BUS_ERROR: // bus error, illegal stop/start
+      twi_error = TW_BUS_ERROR;
+     ec6:	10 92 1c 01 	sts	0x011C, r1
+      twi_stop();
+     eca:	0e 94 64 06 	call	0xcc8	; 0xcc8 <twi_stop>
+      break;
+  }
+}
+     ece:	ff 91       	pop	r31
+     ed0:	ef 91       	pop	r30
+     ed2:	bf 91       	pop	r27
+     ed4:	af 91       	pop	r26
+     ed6:	9f 91       	pop	r25
+     ed8:	8f 91       	pop	r24
+     eda:	7f 91       	pop	r23
+     edc:	6f 91       	pop	r22
+     ede:	5f 91       	pop	r21
+     ee0:	4f 91       	pop	r20
+     ee2:	3f 91       	pop	r19
+     ee4:	2f 91       	pop	r18
+     ee6:	0f 90       	pop	r0
+     ee8:	0f be       	out	0x3f, r0	; 63
+     eea:	0f 90       	pop	r0
+     eec:	1f 90       	pop	r1
+     eee:	18 95       	reti
+
+00000ef0 <twi_init_master>:
+void onRequestService(void);
+void onReceiveService(uint8_t*, int);
+
+void twi_init_master(void)
+{
+  rxBufferIndex = 0;
+     ef0:	10 92 8d 01 	sts	0x018D, r1
+  rxBufferLength = 0;
+     ef4:	10 92 8c 01 	sts	0x018C, r1
+
+  txBufferIndex = 0;
+     ef8:	10 92 8a 01 	sts	0x018A, r1
+  txBufferLength = 0;
+     efc:	10 92 89 01 	sts	0x0189, r1
+
+  twi_init();
+     f00:	0e 94 9d 05 	call	0xb3a	; 0xb3a <twi_init>
+     f04:	08 95       	ret
+
+00000f06 <twi_request_from>:
+  twi_attachSlaveRxEvent(onReceiveService);
+  twi_init_master();
+}
+
+uint8_t twi_request_from(uint8_t address, uint8_t quantity)
+{
+     f06:	46 2f       	mov	r20, r22
+  // clamp to buffer length
+  if(quantity > BUFFER_LENGTH){
+    quantity = BUFFER_LENGTH;
+  }
+  // perform blocking read into buffer
+  uint8_t read = twi_readFrom(address, rxBuffer, quantity);
+     f08:	61 32       	cpi	r22, 0x21	; 33
+     f0a:	08 f0       	brcs	.+2      	; 0xf0e <twi_request_from+0x8>
+     f0c:	40 e2       	ldi	r20, 0x20	; 32
+     f0e:	61 ea       	ldi	r22, 0xA1	; 161
+     f10:	71 e0       	ldi	r23, 0x01	; 1
+     f12:	0e 94 b0 05 	call	0xb60	; 0xb60 <twi_readFrom>
+  // set rx buffer iterator vars
+  rxBufferIndex = 0;
+     f16:	10 92 8d 01 	sts	0x018D, r1
+  rxBufferLength = read;
+     f1a:	80 93 8c 01 	sts	0x018C, r24
+
+  return read;
+}
+     f1e:	08 95       	ret
+
+00000f20 <twi_begin_transmission>:
+
+void twi_begin_transmission(uint8_t address)
+{
+  // indicate that we are transmitting
+  transmitting = 1;
+     f20:	91 e0       	ldi	r25, 0x01	; 1
+     f22:	90 93 88 01 	sts	0x0188, r25
+  // set address of targeted slave
+  txAddress = address;
+     f26:	80 93 8b 01 	sts	0x018B, r24
+  // reset tx buffer iterator vars
+  txBufferIndex = 0;
+     f2a:	10 92 8a 01 	sts	0x018A, r1
+  txBufferLength = 0;
+     f2e:	10 92 89 01 	sts	0x0189, r1
+     f32:	08 95       	ret
+
+00000f34 <twi_end_transmission>:
+}
+
+uint8_t twi_end_transmission(void)
+{
+  // transmit buffer (blocking)
+  int8_t ret = twi_writeTo(txAddress, txBuffer, txBufferLength, 1);
+     f34:	21 e0       	ldi	r18, 0x01	; 1
+     f36:	40 91 89 01 	lds	r20, 0x0189
+     f3a:	61 ec       	ldi	r22, 0xC1	; 193
+     f3c:	71 e0       	ldi	r23, 0x01	; 1
+     f3e:	80 91 8b 01 	lds	r24, 0x018B
+     f42:	0e 94 ea 05 	call	0xbd4	; 0xbd4 <twi_writeTo>
+  // reset tx buffer iterator vars
+  txBufferIndex = 0;
+     f46:	10 92 8a 01 	sts	0x018A, r1
+  txBufferLength = 0;
+     f4a:	10 92 89 01 	sts	0x0189, r1
+  // indicate that we are done transmitting
+  transmitting = 0;
+     f4e:	10 92 88 01 	sts	0x0188, r1
+  return ret;
+}
+     f52:	08 95       	ret
+
+00000f54 <twi_send_byte>:
+
+// must be called in:
+// slave tx event callback
+// or after beginTransmission(address)
+void twi_send_byte(uint8_t data)
+{
+     f54:	cf 93       	push	r28
+     f56:	df 93       	push	r29
+     f58:	1f 92       	push	r1
+     f5a:	cd b7       	in	r28, 0x3d	; 61
+     f5c:	de b7       	in	r29, 0x3e	; 62
+     f5e:	89 83       	std	Y+1, r24	; 0x01
+  if(transmitting){
+     f60:	80 91 88 01 	lds	r24, 0x0188
+     f64:	88 23       	and	r24, r24
+     f66:	91 f0       	breq	.+36     	; 0xf8c <twi_send_byte+0x38>
+  // in master transmitter mode
+    // don't bother if buffer is full
+    if(txBufferLength >= BUFFER_LENGTH){
+     f68:	80 91 89 01 	lds	r24, 0x0189
+     f6c:	80 32       	cpi	r24, 0x20	; 32
+     f6e:	98 f4       	brcc	.+38     	; 0xf96 <twi_send_byte+0x42>
+      return;
+    }
+    // put byte in tx buffer
+    txBuffer[txBufferIndex] = data;
+     f70:	80 91 8a 01 	lds	r24, 0x018A
+     f74:	e8 2f       	mov	r30, r24
+     f76:	f0 e0       	ldi	r31, 0x00	; 0
+     f78:	ef 53       	subi	r30, 0x3F	; 63
+     f7a:	fe 4f       	sbci	r31, 0xFE	; 254
+     f7c:	99 81       	ldd	r25, Y+1	; 0x01
+     f7e:	90 83       	st	Z, r25
+    ++txBufferIndex;
+     f80:	8f 5f       	subi	r24, 0xFF	; 255
+     f82:	80 93 8a 01 	sts	0x018A, r24
+    // update amount in buffer   
+    txBufferLength = txBufferIndex;
+     f86:	80 93 89 01 	sts	0x0189, r24
+     f8a:	05 c0       	rjmp	.+10     	; 0xf96 <twi_send_byte+0x42>
+  }else{
+  // in slave send mode
+    // reply to master
+    twi_transmit(&data, 1);
+     f8c:	61 e0       	ldi	r22, 0x01	; 1
+     f8e:	ce 01       	movw	r24, r28
+     f90:	01 96       	adiw	r24, 0x01	; 1
+     f92:	0e 94 3a 06 	call	0xc74	; 0xc74 <twi_transmit>
+  }
+}
+     f96:	0f 90       	pop	r0
+     f98:	df 91       	pop	r29
+     f9a:	cf 91       	pop	r28
+     f9c:	08 95       	ret
+
+00000f9e <twi_available>:
+// must be called in:
+// slave rx event callback
+// or after requestFrom(address, numBytes)
+uint8_t twi_available(void)
+{
+  return rxBufferLength - rxBufferIndex;
+     f9e:	80 91 8c 01 	lds	r24, 0x018C
+     fa2:	90 91 8d 01 	lds	r25, 0x018D
+}
+     fa6:	89 1b       	sub	r24, r25
+     fa8:	08 95       	ret
+
+00000faa <twi_receive>:
+  // default to returning null char
+  // for people using with char strings
+  uint8_t value = '\0';
+  
+  // get each successive byte on each call
+  if(rxBufferIndex < rxBufferLength){
+     faa:	90 91 8d 01 	lds	r25, 0x018D
+     fae:	80 91 8c 01 	lds	r24, 0x018C
+     fb2:	98 17       	cp	r25, r24
+     fb4:	48 f4       	brcc	.+18     	; 0xfc8 <twi_receive+0x1e>
+    value = rxBuffer[rxBufferIndex];
+     fb6:	e9 2f       	mov	r30, r25
+     fb8:	f0 e0       	ldi	r31, 0x00	; 0
+     fba:	ef 55       	subi	r30, 0x5F	; 95
+     fbc:	fe 4f       	sbci	r31, 0xFE	; 254
+     fbe:	80 81       	ld	r24, Z
+    ++rxBufferIndex;
+     fc0:	9f 5f       	subi	r25, 0xFF	; 255
+     fc2:	90 93 8d 01 	sts	0x018D, r25
+     fc6:	08 95       	ret
+// or after requestFrom(address, numBytes)
+uint8_t twi_receive(void)
+{
+  // default to returning null char
+  // for people using with char strings
+  uint8_t value = '\0';
+     fc8:	80 e0       	ldi	r24, 0x00	; 0
+    value = rxBuffer[rxBufferIndex];
+    ++rxBufferIndex;
+  }
+
+  return value;
+}
+     fca:	08 95       	ret
+
+00000fcc <__divmodhi4>:
+     fcc:	97 fb       	bst	r25, 7
+     fce:	07 2e       	mov	r0, r23
+     fd0:	16 f4       	brtc	.+4      	; 0xfd6 <__divmodhi4+0xa>
+     fd2:	00 94       	com	r0
+     fd4:	07 d0       	rcall	.+14     	; 0xfe4 <__divmodhi4_neg1>
+     fd6:	77 fd       	sbrc	r23, 7
+     fd8:	09 d0       	rcall	.+18     	; 0xfec <__divmodhi4_neg2>
+     fda:	0e 94 1e 08 	call	0x103c	; 0x103c <__udivmodhi4>
+     fde:	07 fc       	sbrc	r0, 7
+     fe0:	05 d0       	rcall	.+10     	; 0xfec <__divmodhi4_neg2>
+     fe2:	3e f4       	brtc	.+14     	; 0xff2 <__divmodhi4_exit>
+
+00000fe4 <__divmodhi4_neg1>:
+     fe4:	90 95       	com	r25
+     fe6:	81 95       	neg	r24
+     fe8:	9f 4f       	sbci	r25, 0xFF	; 255
+     fea:	08 95       	ret
+
+00000fec <__divmodhi4_neg2>:
+     fec:	70 95       	com	r23
+     fee:	61 95       	neg	r22
+     ff0:	7f 4f       	sbci	r23, 0xFF	; 255
+
+00000ff2 <__divmodhi4_exit>:
+     ff2:	08 95       	ret
+
+00000ff4 <__tablejump2__>:
+     ff4:	ee 0f       	add	r30, r30
+     ff6:	ff 1f       	adc	r31, r31
+
+00000ff8 <__tablejump__>:
+     ff8:	05 90       	lpm	r0, Z+
+     ffa:	f4 91       	lpm	r31, Z
+     ffc:	e0 2d       	mov	r30, r0
+     ffe:	09 94       	ijmp
+
+00001000 <__ashldi3>:
+    1000:	0f 93       	push	r16
+    1002:	0f 73       	andi	r16, 0x3F	; 63
+    1004:	51 f0       	breq	.+20     	; 0x101a <__ashldi3+0x1a>
+    1006:	22 0f       	add	r18, r18
+    1008:	33 1f       	adc	r19, r19
+    100a:	44 1f       	adc	r20, r20
+    100c:	55 1f       	adc	r21, r21
+    100e:	66 1f       	adc	r22, r22
+    1010:	77 1f       	adc	r23, r23
+    1012:	88 1f       	adc	r24, r24
+    1014:	99 1f       	adc	r25, r25
+    1016:	0a 95       	dec	r16
+    1018:	b1 f7       	brne	.-20     	; 0x1006 <__ashldi3+0x6>
+    101a:	0f 91       	pop	r16
+    101c:	08 95       	ret
+
+0000101e <__lshrdi3>:
+    101e:	0f 93       	push	r16
+    1020:	0f 73       	andi	r16, 0x3F	; 63
+    1022:	51 f0       	breq	.+20     	; 0x1038 <__lshrdi3+0x1a>
+    1024:	96 95       	lsr	r25
+    1026:	87 95       	ror	r24
+    1028:	77 95       	ror	r23
+    102a:	67 95       	ror	r22
+    102c:	57 95       	ror	r21
+    102e:	47 95       	ror	r20
+    1030:	37 95       	ror	r19
+    1032:	27 95       	ror	r18
+    1034:	0a 95       	dec	r16
+    1036:	b1 f7       	brne	.-20     	; 0x1024 <__lshrdi3+0x6>
+    1038:	0f 91       	pop	r16
+    103a:	08 95       	ret
+
+0000103c <__udivmodhi4>:
+    103c:	aa 1b       	sub	r26, r26
+    103e:	bb 1b       	sub	r27, r27
+    1040:	51 e1       	ldi	r21, 0x11	; 17
+    1042:	07 c0       	rjmp	.+14     	; 0x1052 <__udivmodhi4_ep>
+
+00001044 <__udivmodhi4_loop>:
+    1044:	aa 1f       	adc	r26, r26
+    1046:	bb 1f       	adc	r27, r27
+    1048:	a6 17       	cp	r26, r22
+    104a:	b7 07       	cpc	r27, r23
+    104c:	10 f0       	brcs	.+4      	; 0x1052 <__udivmodhi4_ep>
+    104e:	a6 1b       	sub	r26, r22
+    1050:	b7 0b       	sbc	r27, r23
+
+00001052 <__udivmodhi4_ep>:
+    1052:	88 1f       	adc	r24, r24
+    1054:	99 1f       	adc	r25, r25
+    1056:	5a 95       	dec	r21
+    1058:	a9 f7       	brne	.-22     	; 0x1044 <__udivmodhi4_loop>
+    105a:	80 95       	com	r24
+    105c:	90 95       	com	r25
+    105e:	bc 01       	movw	r22, r24
+    1060:	cd 01       	movw	r24, r26
+    1062:	08 95       	ret
+
+00001064 <_exit>:
+    1064:	f8 94       	cli
+
+00001066 <__stop_program>:
+    1066:	ff cf       	rjmp	.-2      	; 0x1066 <__stop_program>
