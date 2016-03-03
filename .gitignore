@@ -1,2 +1,23 @@
 docs/
 Box/
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+*.d
+*.map
+*.lss
+*.eep
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
