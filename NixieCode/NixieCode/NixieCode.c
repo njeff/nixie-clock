@@ -93,8 +93,18 @@ int main(void)
 	uint8_t doublecycle = 0; //to roll digits through two cycles
 	uint8_t buttons = 0;
 	uint8_t heldButtons = 0;
-	int8_t temp1 = 0;
-	uint8_t temp2 = 0;
+	uint8_t left = 0;
+	uint8_t right = 0;
+	
+	uint8_t tOn = 0; //timer on/off
+	uint8_t tMin = 0; //timer counts
+	uint8_t tSec = 0;
+	uint16_t tMil = 0;
+	millis_t tStart = 0;
+	millis_t tCurrent = 0;
+	
+	int8_t temp1 = 0; //signed upper half of temperature
+	uint8_t temp2 = 0; //unsigned lower half of temperature
 	millis_t entryTime = 0;
 	enum mode state = clock;
 	enum mode oldState = state;
@@ -105,16 +115,25 @@ int main(void)
 		//update state of buttons
 		buttons = getButtons();
 		if(buttons & 0x01){
-			if(heldButtons & 0x01){
-				
-			} else {
+			if((heldButtons & 0x01) == 0){ //if mode button is pressed
 				state = (state+1)%4;
 			}
 		}
-		heldButtons = buttons;
+		if(buttons & 0x02){
+			if((heldButtons & 0x02) == 0){ //right
+				right = 1;
+			}
+		}
+		if(buttons & 0x04){
+			if((heldButtons & 0x04) == 0){ //left
+				left = 1;
+			}
+		}
+		
+		heldButtons = buttons; //update state of last buttons held down
 		
 		//go to correct mode
-		if(state == clock){
+		if(state == clock) { //time
 			output[1] = (t->hour)%10; //get time in HH/MM/SS
 			output[0] = (t->hour)/10;
 			output[3] = (t->min)%10;
@@ -122,8 +141,18 @@ int main(void)
 			output[5] = (t->sec)%10;
 			output[4] = (t->sec)/10;
 			
+			//buttons update time
+			if(right){
+				t->min = (t->min+1)%60;
+				rtc_set_time(t);
+			}
+			if(left){
+				t->hour = (t->hour+1)%24;
+				rtc_set_time(t);
+			}
+			
 			if(oldSec != output[5]){ //if seconds change
-				sepa ^= 1;
+				sepa ^= 1; //toggle the separator lights
 			}
 					
 			if(oldMin != output[3] && rollover == 0){ //if minutes change
@@ -154,7 +183,8 @@ int main(void)
 			
 			oldSec = output[5];
 			oldMin = output[3];
-		} else if(state == date) {
+		} 
+		else if(state == date) { //date
 			if(oldState!=state){
 				entryTime = millis_get();
 			}
@@ -168,7 +198,8 @@ int main(void)
 			output[2] = (t->mday)/10;
 			output[5] = (t->year)%10;
 			output[4] = ((t->year)/10)%10;		
-		} else if(state == temperature) {
+		} 
+		else if(state == temperature) { //temperature
 			if(oldState!=state){
 				entryTime = millis_get();
 			}
@@ -176,24 +207,51 @@ int main(void)
 				state = clock;
 			}
 			ds3231_get_temp_int(&temp1,&temp2);
-			sepa = 1;
+			sepa = 0;
 			output[0] = 11; //set blank
 			output[1] = 11;
 			output[2] = temp1/10;
 			output[3] = temp1%10;
 			output[4] = temp2/10;
 			output[5] = temp2%10;
-			
-		} else if(state == timer) {
+		} 
+		else if(state == timer) {
+			if(tOn){ //if the timer is running
+				if(left){ //stop timer
+					tOn = 0;
+				}
+				if(right){
+					
+				}
+				tCurrent = millis_get() - tStart;
+				tMil = tCurrent%1000;
+				tSec = (tCurrent/1000)%60;
+				tMin = tCurrent/60000;
+								
+			} else { //if the timer is not running
+				if(left){ //start timer
+					if(tMil == 0 && tSec == 0 && tMin == 0){
+						tStart = millis_get();
+					}
+					tOn = 1;
+				}
+				if(right){ //reset
+					tMil = 0;
+					tSec = 0;
+					tMin = 0;
+				}
+			}
 			sepa = 1;
-			output[0] = 0;
-			output[1] = 0;
-			output[2] = 0;
-			output[3] = 0;
-			output[4] = 0;
-			output[5] = 0;
+			output[0] = tMin/10;
+			output[1] = tMin%10;
+			output[2] = tSec/10;
+			output[3] = tSec%10;
+			output[4] = tMil/100;
+			output[5] = (tMil%100)/10;
 		}
-		writeOut(output,sepa,sepa);
+		writeOut(output,sepa,sepa); //update display
+		right = 0;
+		left = 0;
 		oldState = state;
     }
 }
